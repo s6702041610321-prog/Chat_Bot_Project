@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>ระบบจัดการห้องเรียน - Teacher Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/assets/css/base.css">
+  <link rel="stylesheet" href="/src/assets/css/layout.css">
+  <link rel="stylesheet" href="/src/assets/css/components.css">
+  <style>
+    .nav-top { position: relative; z-index: 100; background: rgba(5,8,21,0.85); backdrop-filter: var(--blur); padding: 16px 24px; border-bottom: 1px solid var(--border2); display: flex; align-items: center; justify-content: space-between; }
+    [data-theme="light"] .nav-top { background: rgba(240,242,255,0.9); }
+    
+    .auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+    
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin: 20px 0; }
+    .stat-card { background: var(--card); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 20px; text-align: center; }
+    
+    .data-table-wrapper { overflow-x: auto; margin-top: 20px; border-radius: var(--radius-sm); border: 1px solid var(--border2); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+    th, td { padding: 12px 16px; border-bottom: 1px solid var(--border2); white-space: nowrap; }
+    th { background: rgba(124,107,240,0.1); color: var(--pr2); font-weight: 700; }
+    tr:hover { background: rgba(255,255,255,0.02); }
+    
+    .badge-pass { background: rgba(6,214,160,0.15); color: var(--acc); padding: 4px 10px; border-radius: 100px; font-size: 0.8rem; font-weight: 700; }
+    .badge-fail { background: rgba(247,37,133,0.15); color: #f72585; padding: 4px 10px; border-radius: 100px; font-size: 0.8rem; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="bg-grad"></div>
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <!-- Password Protection -->
+  <div class="auth-overlay" id="authOverlay">
+    <div class="card card-glow" style="max-width: 400px; width: 100%; text-align: center;">
+      <div style="font-size: 3rem; margin-bottom: 10px;">👩‍🏫</div>
+      <h2 style="margin-bottom: 20px;">Teacher Dashboard</h2>
+      <input type="password" id="teacherPwd" class="btn" style="width: 100%; border: 1px solid var(--border2); background: rgba(0,0,0,0.2); color: var(--tx); margin-bottom: 16px; cursor: text;" placeholder="รหัสผ่าน (teacher2568)">
+      <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="checkPwd()">เข้าสู่ระบบ</button>
+    </div>
+  </div>
+
+  <div class="nav-top">
+    <div class="nav-title">👩‍🏫 ระบบจัดการห้องเรียน (Teacher Dashboard)</div>
+    <div style="display:flex; gap: 10px;">
+      <button class="btn btn-secondary" onclick="exportCSV()" style="padding: 6px 14px; font-size: 0.85rem;">📥 Export CSV</button>
+      <a href="/" class="btn btn-ghost" style="padding: 6px 14px; font-size: 0.85rem;">← กลับหน้าแรก</a>
+    </div>
+  </div>
+
+  <main class="page" style="max-width: 1000px; margin: 0 auto; padding: 30px 20px;">
+    
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div style="font-size: 2rem; font-weight: 800; color: var(--pr2);" id="totStudents">0</div>
+        <div style="font-size: 0.9rem; color: var(--tx2);">นักเรียนทั้งหมด</div>
+      </div>
+      <div class="stat-card">
+        <div style="font-size: 2rem; font-weight: 800; color: var(--acc);" id="totPass">0</div>
+        <div style="font-size: 0.9rem; color: var(--tx2);">ผ่านเกณฑ์ (80%)</div>
+      </div>
+      <div class="stat-card">
+        <div style="font-size: 2rem; font-weight: 800; color: var(--tx);" id="avgPre">-</div>
+        <div style="font-size: 0.9rem; color: var(--tx2);">คะแนนเฉลี่ยก่อนเรียน</div>
+      </div>
+      <div class="stat-card">
+        <div style="font-size: 2rem; font-weight: 800; color: var(--tx);" id="avgPost">-</div>
+        <div style="font-size: 0.9rem; color: var(--tx2);">คะแนนเฉลี่ยหลังเรียน</div>
+      </div>
+    </div>
+
+    <div class="card card-glow" style="padding: 20px;">
+      <h3 style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+        รายชื่อนักเรียน
+        <button class="btn btn-ghost" onclick="loadData()" style="padding: 4px 10px; font-size: 0.8rem;">🔄 รีเฟรช</button>
+      </h3>
+      
+      <div class="data-table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>ชื่อ-นามสกุล</th>
+              <th>ห้องเรียน</th>
+              <th>คะแนนก่อนเรียน</th>
+              <th>คะแนนหลังเรียน</th>
+              <th>พัฒนาการ</th>
+              <th>สถานะ</th>
+              <th>ใบรับรอง (Cert ID)</th>
+            </tr>
+          </thead>
+          <tbody id="studentTableBody">
+            <!-- Rendered by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <button class="theme-toggle" id="themeToggle">🌙</button>
+
+  <script src="/src/assets/js/utils.js"></script>
+  <script>
+    let studentData = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      window.Utils.initTheme();
+      const themeBtn = document.getElementById('themeToggle');
+      if(themeBtn) themeBtn.addEventListener('click', window.Utils.toggleTheme);
+    });
+
+    function checkPwd() {
+      const pwd = document.getElementById('teacherPwd').value;
+      if (pwd === 'teacher2568') {
+        document.getElementById('authOverlay').style.display = 'none';
+        window.Utils.showToast('✅ เข้าสู่ระบบสำเร็จ');
+        loadData();
+      } else {
+        window.Utils.showToast('❌ รหัสผ่านไม่ถูกต้อง');
+      }
+    }
+
+    function loadData() {
+      studentData = [
+        { name: 'สมชาย รักเรียน', room: 'ม.5/1', pre: 3, post: 9, cert: 'CERT-A1B2C3D4' },
+        { name: 'สมหญิง ใจดี', room: 'ม.5/1', pre: 5, post: 10, cert: 'CERT-X9Y8Z7' },
+        { name: 'มานะ ขยัน', room: 'ม.5/2', pre: 2, post: 7, cert: '-' },
+        { name: 'ปิติ เรียนเก่ง', room: 'ม.5/3', pre: 6, post: 8, cert: 'CERT-P1Q2R3' }
+      ];
+
+      const user = window.Utils.Storage.get('cb_user');
+      const prog = window.Utils.Storage.get('cb_progress');
+      if (user && user.fullname && user.fullname !== 'ผู้เข้ารับการอบรม') {
+        studentData.unshift({
+          name: user.fullname + ' (คุณ)',
+          room: user.room || '-',
+          pre: prog && prog.preTest ? prog.preTest.score : '-',
+          post: prog && prog.postTest ? prog.postTest.score : '-',
+          cert: user.certId || '-'
+        });
+      }
+
+      renderTable();
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('studentTableBody');
+      let html = '';
+      
+      let passCount = 0;
+      let preSum = 0, preCount = 0;
+      let postSum = 0, postCount = 0;
+
+      studentData.forEach(s => {
+        let diff = '-';
+        if (s.pre !== '-' && s.post !== '-') {
+          diff = s.post - s.pre;
+          diff = diff > 0 ? '+' + diff : diff;
+          
+          preSum += s.pre; preCount++;
+          postSum += s.post; postCount++;
+        }
+        
+        let status = '-';
+        if (s.post !== '-') {
+          if (s.post >= 8) {
+            status = '<span class="badge-pass">ผ่านเกณฑ์</span>';
+            passCount++;
+          } else {
+            status = '<span class="badge-fail">ไม่ผ่าน</span>';
+          }
+        }
+
+        html += `
+          <tr>
+            <td>${s.name}</td>
+            <td>${s.room}</td>
+            <td>${s.pre}</td>
+            <td><b style="color:var(--acc)">${s.post}</b></td>
+            <td>${diff}</td>
+            <td>${status}</td>
+            <td style="font-family:'Space Grotesk'; font-size:0.8rem; color:var(--tx2)">${s.cert}</td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = html;
+
+      document.getElementById('totStudents').textContent = studentData.length;
+      document.getElementById('totPass').textContent = passCount;
+      document.getElementById('avgPre').textContent = preCount > 0 ? (preSum / preCount).toFixed(1) : '-';
+      document.getElementById('avgPost').textContent = postCount > 0 ? (postSum / postCount).toFixed(1) : '-';
+    }
+
+    function exportCSV() {
+      if (studentData.length === 0) return window.Utils.showToast('ไม่มีข้อมูล');
+      
+      const csvData = studentData.map(s => ({
+        "ชื่อ-นามสกุล": s.name.replace(' (คุณ)', ''),
+        "ห้องเรียน": s.room,
+        "คะแนนก่อนเรียน": s.pre,
+        "คะแนนหลังเรียน": s.post,
+        "ใบรับรอง": s.cert
+      }));
+      
+      window.Utils.downloadCSV(csvData, `student_scores_${new Date().toISOString().split('T')[0]}.csv`);
+      window.Utils.showToast('📥 ดาวน์โหลดไฟล์ CSV แล้ว');
+    }
+  </script>
+</body>
+</html>

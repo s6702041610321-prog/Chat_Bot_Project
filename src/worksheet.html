@@ -1,0 +1,154 @@
+﻿<!DOCTYPE html>
+<html lang="th" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>ใบงาน - การสร้างแชทบอท</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/assets/css/base.css">
+  <link rel="stylesheet" href="/src/assets/css/layout.css">
+  <link rel="stylesheet" href="/src/assets/css/components.css">
+  <style>
+    body { background: #f0f2ff; color: #14172b; }
+    .nav-top { position: relative; z-index: 100; background: rgba(240,242,255,0.9); backdrop-filter: var(--blur); padding: 16px 24px; border-bottom: 1px solid rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-between; }
+    
+    .ws-card { background: #fff; border: 1px solid #ccc; border-radius: 8px; padding: 30px; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    .ws-title { text-align: center; font-weight: 700; font-size: 1.3rem; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
+    
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.95rem; }
+    .form-control { width: 100%; padding: 10px 14px; border: 1px solid #aaa; border-radius: 4px; font-family: inherit; font-size: 0.95rem; background: #fafafa; }
+    textarea.form-control { resize: vertical; min-height: 80px; }
+    
+    .print-only { display: none; }
+    
+    @media print {
+      body { background: #fff; color: #000; padding: 0; margin: 0; font-size: 12pt; }
+      .nav-top, .no-print, .bg-grad, #toastWrap, .top-navbar { display: none !important; }
+      .ws-card { box-shadow: none; border: none; padding: 0; margin-bottom: 40px; page-break-after: always; }
+      .ws-card:last-child { page-break-after: auto; }
+      .form-control { border: none; border-bottom: 1px dotted #000; background: transparent; padding: 4px 0; border-radius: 0; resize: none; min-height: auto; }
+      .print-only { display: block; margin-bottom: 20px; font-weight: 600; text-align: right; }
+    }
+  </style>
+</head>
+<body>
+  <div class="nav-top no-print">
+    <a href="/" class="btn btn-ghost" style="padding: 6px 12px; border-color: #ccc; color: #333;">← กลับ</a>
+    <div style="font-weight: 700; font-size: 1.1rem;">📋 ใบงานปฏิบัติการ 3 ชิ้น</div>
+    <button class="btn btn-primary" onclick="printWorksheets()">🖨️ พิมพ์เป็น PDF</button>
+  </div>
+
+  <main class="page" style="max-width: 800px; margin: 0 auto; padding: 30px 20px;">
+    
+    <!-- WORKSHEET 1 -->
+    <div class="ws-card">
+      <div class="print-only">ชื่อ-สกุล: ______________________ ชั้น: _______</div>
+      <div class="ws-title">ใบงานที่ 1: การออกแบบโครงสร้าง Chatbot</div>
+      
+      <div class="form-group">
+        <label>1. ชื่อแชทบอทของคุณ:</label>
+        <input type="text" class="form-control" placeholder="เช่น CafeBot">
+      </div>
+      <div class="form-group">
+        <label>2. เป้าหมายหลักของบอทนี้ (สร้างมาเพื่ออะไร):</label>
+        <textarea class="form-control" placeholder="เช่น เพื่อตอบคำถามและรับออเดอร์ร้านกาแฟ"></textarea>
+      </div>
+      <div class="form-group">
+        <label>3. กำหนด 3 Intent หลักที่ผู้ใช้มักจะถาม (พร้อมตัวอย่างประโยค):</label>
+        <textarea class="form-control" rows="4" placeholder="1. Intent: ถามเวลาเปิดปิด (ผู้ใช้พิมพ์: ร้านเปิดกี่โมง)&#10;2. ..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>4. ข้อความต้อนรับ (Greeting Message):</label>
+        <textarea class="form-control" rows="2" placeholder="ข้อความแรกที่บอทจะทักทายผู้ใช้..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>5. ข้อความ Fallback (เมื่อบอทไม่เข้าใจ):</label>
+        <textarea class="form-control" rows="2" placeholder="เช่น ขออภัยค่ะ น้องบอทยังไม่เข้าใจคำถามนี้..."></textarea>
+      </div>
+    </div>
+
+    <!-- WORKSHEET 2 -->
+    <div class="ws-card">
+      <div class="print-only">ชื่อ-สกุล: ______________________ ชั้น: _______</div>
+      <div class="ws-title">ใบงานที่ 2: บันทึกการสร้างบนแพลตฟอร์ม</div>
+      
+      <div class="form-group">
+        <label>1. แพลตฟอร์มที่เลือกใช้:</label>
+        <input type="text" class="form-control" placeholder="เช่น Dialogflow, LINE OA, Botpress">
+      </div>
+      <div class="form-group">
+        <label>2. อุปสรรคหรือปัญหาที่พบระหว่างการตั้งค่า:</label>
+        <textarea class="form-control" rows="4"></textarea>
+      </div>
+      <div class="form-group">
+        <label>3. วิธีการแก้ปัญหาดังกล่าว:</label>
+        <textarea class="form-control" rows="4"></textarea>
+      </div>
+      <div class="form-group" style="margin-top: 30px; text-align: center; border: 2px dashed #ccc; padding: 40px; color: #666;">
+        [ สำหรับวาด / แปะรูป QR Code ของ Chatbot เพื่อให้เพื่อนทดสอบ ]
+      </div>
+    </div>
+
+    <!-- WORKSHEET 3 -->
+    <div class="ws-card">
+      <div class="print-only">ชื่อ-สกุล: ______________________ ชั้น: _______</div>
+      <div class="ws-title">ใบงานที่ 3: บันทึกผลการทดสอบ (Testing)</div>
+      <p style="font-size: 0.9rem; color: #555; text-align: center; margin-bottom: 20px;">สลับกันทดสอบแชทบอทกับเพื่อน และบันทึกผลการประเมิน</p>
+      
+      <div class="form-group">
+        <label>1. ชื่อแชทบอทของเพื่อนที่ทดสอบ:</label>
+        <input type="text" class="form-control">
+      </div>
+      <div class="form-group">
+        <label>2. จุดเด่นของแชทบอทเพื่อน:</label>
+        <textarea class="form-control" rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <label>3. จุดที่ควรปรับปรุง (เช่น บอทไม่เข้าใจคำศัพท์บางคำ, เมนูซับซ้อนไป):</label>
+        <textarea class="form-control" rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <label>4. ข้อเสนอแนะที่จะนำมาปรับปรุงบอทของตนเอง:</label>
+        <textarea class="form-control" rows="3"></textarea>
+      </div>
+      <div style="margin-top: 40px; text-align: right;">
+        ผู้ประเมิน: __________________________
+      </div>
+    </div>
+
+    <div class="no-print" style="text-align: center; margin: 40px 0;">
+      <button class="btn btn-acc" onclick="markDone()" style="font-size: 1.1rem;">✅ ฉันทำใบงานเสร็จเรียบร้อยแล้ว</button>
+    </div>
+
+  </main>
+
+  <script src="/src/assets/js/utils.js"></script>
+  <script src="/src/assets/js/nav.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      window.Nav.renderTopNav(''); // No highlight
+    });
+
+    function printWorksheets() {
+      window.print();
+    }
+
+    function markDone() {
+      let prog = window.Utils.Storage.get('cb_progress') || {};
+      if(!prog.worksheets) prog.worksheets = {};
+      prog.worksheets.ws1 = true;
+      prog.worksheets.ws2 = true;
+      prog.worksheets.ws3 = true;
+      window.Utils.Storage.set('cb_progress', prog);
+      window.Utils.syncToGoogleSheet('ใบงาน');
+      window.Utils.showToast('✅ บันทึกสถานะการส่งใบงานแล้ว!');
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 1000);
+    }
+  </script>
+</body>
+</html>
+
+

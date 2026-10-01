@@ -1,0 +1,51 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Elegant Dark Theme */
+  --bg: #0f172a;
+  --bg2: #1e293b;
+  --tx: #f8fafc;
+  --tx2: #94a3b8;
+  --pr: #6366f1;
+  --pr2: #818cf8;
+  --acc: #10b981;
+  --pink: #f43f5e;
+  --yellow: #f59e0b;
+  --border: rgba(255, 255, 255, 0.08);
+  --border2: rgba(255, 255, 255, 0.12);
+  --card: rgba(30, 41, 59, 0.7);
+  
+  --g1: linear-gradient(135deg, #6366f1, #8b5cf6);
+  --blur: blur(16px);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --t: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="light"] {
+  --bg: #f8fafc;
+  --bg2: #ffffff;
+  --tx: #0f172a;
+  --tx2: #64748b;
+  --pr: #4f46e5;
+  --pr2: #6366f1;
+  --acc: #059669;
+  --pink: #e11d48;
+  --border: rgba(0, 0, 0, 0.08);
+  --border2: rgba(0, 0, 0, 0.12);
+  --card: rgba(255, 255, 255, 0.8);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Sarabun', sans-serif;
+  background: var(--bg);
+  color: var(--tx);
+  overflow-x: hidden;
+  transition: background-color 0.3s ease;
+  line-height: 1.6;
+}
+h1, h2, h3, h4, h5, h6, .nav-title, .timer, .lesson-num {
+  font-family: 'Inter', 'Sarabun', sans-serif;
+}
+a { text-decoration: none; color: inherit; }

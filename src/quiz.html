@@ -1,0 +1,236 @@
+﻿<!DOCTYPE html>
+<html lang="th" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>แบบทดสอบ - การสร้างแชทบอท</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/assets/css/base.css">
+  <link rel="stylesheet" href="/src/assets/css/layout.css">
+  <link rel="stylesheet" href="/src/assets/css/components.css">
+  <style>
+    .nav-top { position: relative; z-index: 100; background: rgba(5,8,21,0.85); backdrop-filter: var(--blur); padding: 16px 24px; border-bottom: 1px solid var(--border2); display: flex; align-items: center; justify-content: space-between; }
+    [data-theme="light"] .nav-top { background: rgba(240,242,255,0.9); }
+    .timer { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 800; color: #f72585; display: flex; align-items: center; gap: 8px; }
+    .timer.warning { animation: pulsedot 1s infinite; color: #ff0055; }
+    
+    .quiz-num { font-size: 0.8rem; font-weight: 700; color: var(--pr2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .quiz-q { font-size: 1.05rem; font-weight: 700; margin-bottom: 16px; line-height: 1.5; }
+    .opt { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; margin: 10px 0; padding: 14px 18px; border: 1.5px solid var(--border2); border-radius: var(--radius-sm); background: transparent; color: var(--tx); font: inherit; font-size: 0.95rem; cursor: pointer; transition: var(--t); }
+    .opt:hover:not(:disabled) { border-color: var(--pr); transform: translateX(4px); }
+    .opt.selected { border-color: var(--pr); background: rgba(124,107,240,0.1); }
+    .opt.correct { border-color: var(--acc); background: rgba(6,214,160,0.1); }
+    .opt.wrong { border-color: #f72585; background: rgba(247,37,133,0.1); }
+    .opt-circle { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border2); flex-shrink: 0; transition: var(--t); display: grid; place-items: center; }
+    .opt.selected .opt-circle { border-color: var(--pr); border-width: 6px; }
+    .opt.correct .opt-circle { border-color: var(--acc); background: var(--acc); }
+    .opt.wrong .opt-circle { border-color: #f72585; background: #f72585; }
+    
+    .exp { display: none; margin-top: 14px; padding: 14px; background: rgba(255,255,255,0.05); border-left: 3px solid var(--acc); font-size: 0.85rem; line-height: 1.5; color: var(--tx2); animation: pageIn 0.3s ease; }
+    .exp.show { display: block; }
+    
+    /* Name Modal */
+    .auth-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+  </style>
+</head>
+<body>
+  <div class="bg-grad"></div>
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <!-- Name Modal -->
+  <div class="auth-overlay" id="nameModal" style="display: none;">
+    <div class="card card-glow" style="max-width: 400px; width: 100%; text-align: center; animation: pageIn 0.4s ease;">
+      <div style="font-size: 3.5rem; margin-bottom: 10px;">👋</div>
+      <h2 style="margin-bottom: 10px;">ยินดีต้อนรับ</h2>
+      <p style="color: var(--tx2); margin-bottom: 24px; font-size: 0.95rem;">กรุณากรอกข้อมูลเพื่อบันทึกคะแนนลงระบบ</p>
+      
+      <div style="text-align: left; margin-bottom: 16px;">
+        <label style="display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; color: var(--tx);">ชื่อ-นามสกุล <span style="color: #f72585">*</span></label>
+        <input type="text" id="studentName" class="btn" style="width: 100%; border: 1px solid var(--border2); background: rgba(0,0,0,0.2); color: var(--tx); cursor: text; text-align: left;" placeholder="ตัวอย่าง: สมชาย รักเรียน">
+      </div>
+      
+      <div style="text-align: left; margin-bottom: 24px;">
+        <label style="display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; color: var(--tx);">ชั้น / ห้อง (ถ้ามี)</label>
+        <input type="text" id="studentRoom" class="btn" style="width: 100%; border: 1px solid var(--border2); background: rgba(0,0,0,0.2); color: var(--tx); cursor: text; text-align: left;" placeholder="ตัวอย่าง: ม.5/1">
+      </div>
+      
+      <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 14px;" onclick="saveStudentInfo()">เริ่มทำแบบทดสอบ 🚀</button>
+    </div>
+  </div>
+
+  <div class="nav-top">
+    <a href="/" class="btn btn-ghost" style="padding: 6px 12px;" id="backBtn">← กลับ</a>
+    <div class="nav-title" id="pageTitle">กำลังโหลด...</div>
+    <div class="timer" id="timerDisplay">⏱️ 15:00</div>
+  </div>
+
+  <main class="page" style="padding-top: 20px;">
+    
+    <div id="quizContainer">
+      <!-- Generated by JS -->
+    </div>
+
+    <div style="text-align: center; margin-top: 30px; margin-bottom: 50px;">
+      <button class="btn btn-primary" id="submitBtn" onclick="submitQuiz()" style="padding: 14px 40px; font-size: 1.1rem;">ส่งคำตอบ</button>
+    </div>
+
+  </main>
+
+  <button class="theme-toggle" id="themeToggle">🌙</button>
+
+  <script src="/src/assets/js/utils.js"></script>
+  <script src="/src/assets/js/nav.js"></script>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const quizType = urlParams.get('type') || 'pre'; // 'pre' or 'post'
+    const isPost = quizType === 'post';
+    let timeLeft = 15 * 60; // 15 minutes
+    let timerInterval;
+    let answers = {};
+    let isSubmitted = false;
+
+    const QUIZ = [
+      { q: 'Chatbot คืออะไร?', o: ['หุ่นยนต์ทำความสะอาดบ้าน', 'โปรแกรมที่ตอบโต้การสนทนากับมนุษย์ได้', 'โปรแกรมแอนตี้ไวรัส', 'ระบบจัดการฐานข้อมูล'], a: 1, e: 'Chatbot คือโปรแกรมคอมพิวเตอร์ที่จำลองการสนทนากับผู้ใช้มนุษย์ ผ่านทางข้อความหรือเสียง' },
+      { q: 'คำว่า "Intent" ในการสร้าง Chatbot หมายถึงอะไร?', o: ['ความรวดเร็วในการตอบกลับ', 'ความตั้งใจหรือจุดประสงค์ของผู้ใช้', 'จำนวนเงินที่บอทหาได้', 'แพลตฟอร์มที่ใช้สร้าง'], a: 1, e: 'Intent คือเจตนา หรือสิ่งที่ผู้ใช้ต้องการจะสื่อสารกับแชทบอท' },
+      { q: 'ส่วนใดของ Chatbot ที่ทำหน้าที่ดึงข้อมูลเฉพาะเจาะจง (เช่น เวลา, วันที่, สถานที่)?', o: ['Intent', 'Entity', 'Context', 'Fallback'], a: 1, e: 'Entity ทำหน้าที่ดึงข้อมูลย่อยเฉพาะเจาะจงออกจากประโยค' },
+      { q: 'เมื่อ Chatbot ไม่เข้าใจคำถามของผู้ใช้ จะใช้ระบบใดมารองรับ?', o: ['Fallback', 'Error 404', 'Machine Learning', 'Training'], a: 0, e: 'Fallback (หรือ Default Fallback Intent) คือระบบรองรับเมื่อบอทไม่เข้าใจคำถาม' },
+      { q: 'ข้อใดไม่ใช่แพลตฟอร์มสำหรับการสร้าง Chatbot?', o: ['Dialogflow', 'LINE OA', 'Botpress', 'Adobe Illustrator'], a: 3, e: 'Adobe Illustrator เป็นโปรแกรมวาดภาพ ไม่ใช่แพลตฟอร์มสร้างแชทบอท' },
+      { q: 'Context ในแชทบอท มีประโยชน์อย่างไร?', o: ['ใช้จำลองภาพ 3 มิติ', 'ใช้จดจำบริบทของการสนทนาต่อเนื่อง', 'ใช้คำนวณสถิติคนเข้าเว็บไซต์', 'ใช้สำหรับทำรายงานสรุป'], a: 1, e: 'Context ช่วยให้บอทจำได้ว่าก่อนหน้านี้กำลังคุยเรื่องอะไรอยู่' },
+      { q: 'ข้อใดคือขั้นตอนแรกสุดในการสร้าง Chatbot?', o: ['เขียนโค้ด', 'สมัคร Dialogflow', 'กำหนดเป้าหมายของ Chatbot', 'เปิด Facebook Page'], a: 2, e: 'ก่อนจะสร้างหรือเขียนโค้ด ควรเริ่มจากการกำหนดเป้าหมายว่าสร้างบอทมาเพื่ออะไร' },
+      { q: 'การออกแบบ Conversation Flow คืออะไร?', o: ['การเลือกสีพื้นหลังของแชท', 'การสร้างรูปภาพโพรไฟล์', 'การวางแผนผังลำดับการสนทนา', 'การยิงแอดโฆษณา'], a: 2, e: 'การออกแบบเส้นทางการสนทนา เพื่อกำหนดล่วงหน้าว่าถ้าผู้ใช้ถามแบบนี้ บอทจะตอบไปในทิศทางใด' },
+      { q: 'NLP (Natural Language Processing) ช่วย Chatbot ในเรื่องใด?', o: ['ทำให้บอทพิมพ์เร็วขึ้น', 'ทำให้บอทเข้าใจภาษามนุษย์ที่เป็นธรรมชาติได้ดีขึ้น', 'ทำให้เชื่อมต่อกับ Database ได้', 'ทำให้รองรับคนหลักล้านคนพร้อมกันได้'], a: 1, e: 'NLP เป็นเทคโนโลยีที่ช่วยให้คอมพิวเตอร์เข้าใจภาษาที่คนใช้จริงๆ ในชีวิตประจำวัน' },
+      { q: 'หาก Chatbot ตอบผู้ใช้ว่า "ขออภัย ฉันไม่เข้าใจ กรุณาพิมพ์ใหม่" หลายๆ ครั้งติดกัน สิ่งใดคือปัญหามากที่สุด?', o: ['บอทฉลาดเกินไป', 'ผู้ใช้พิมพ์เก่งเกินไป', 'UX (ประสบการณ์ผู้ใช้) ไม่ดี', 'ฐานข้อมูลเต็ม'], a: 2, e: 'เป็น UX ที่แย่ บอทควรจะมีทางเลือก (ตัวเลือกเมนู) หรือทางออกอื่นๆ ให้ผู้ใช้ แทนที่จะบอกว่าไม่เข้าใจซ้ำๆ' }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      window.Nav.renderTopNav(isPost ? 'post' : 'pre');
+      window.Nav.protectPage(isPost ? 'post' : 'pre');
+      window.Utils.initTheme();
+      document.getElementById('pageTitle').textContent = isPost ? '✅ แบบทดสอบหลังเรียน' : '📝 แบบทดสอบก่อนเรียน';
+      
+      const prog = window.Utils.Storage.get('cb_progress') || {};
+      
+      if (prog[isPost ? 'postTest' : 'preTest']) {
+        // Already submitted
+        answers = prog[isPost ? 'postTest' : 'preTest'].answers;
+        isSubmitted = true;
+        document.getElementById('timerDisplay').style.display = 'none';
+        document.getElementById('submitBtn').style.display = 'none';
+        window.Utils.showToast('ℹ️ คุณทำแบบทดสอบนี้ไปแล้ว');
+        renderQuiz();
+      } else {
+        // Check if we need to ask for name
+        const user = window.Utils.Storage.get('cb_user') || {};
+        if (!user.fullname || user.fullname === 'ผู้เข้ารับการอบรม' || user.fullname.startsWith('GUEST-')) {
+          document.getElementById('nameModal').style.display = 'flex';
+          // Render quiz behind the modal but don't start timer yet
+          renderQuiz(); 
+        } else {
+          // Already have name, start right away
+          startTimer();
+          renderQuiz();
+        }
+      }
+    });
+
+    function saveStudentInfo() {
+      const nameEl = document.getElementById('studentName');
+      const roomEl = document.getElementById('studentRoom');
+      const nameVal = nameEl.value.trim();
+      const roomVal = roomEl.value.trim();
+      
+      if (!nameVal) {
+        window.Utils.showToast('กรุณากรอกชื่อ-นามสกุลก่อนเริ่มทำแบบทดสอบ', 'warning');
+        nameEl.focus();
+        return;
+      }
+
+      let user = window.Utils.Storage.get('cb_user') || {};
+      user.fullname = nameVal;
+      user.room = roomVal || '-';
+      
+      window.Utils.Storage.set('cb_user', user);
+      document.getElementById('nameModal').style.display = 'none';
+      window.Utils.showToast('✅ บันทึกข้อมูลเรียบร้อย เริ่มทำแบบทดสอบได้เลย!');
+      
+      startTimer();
+    }
+
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        const t = document.getElementById('timerDisplay');
+        t.textContent = '⏱️ ' + window.Utils.formatTime(timeLeft);
+        if(timeLeft <= 60) t.classList.add('warning');
+        if(timeLeft <= 0) {
+          clearInterval(timerInterval);
+          submitQuiz();
+        }
+      }, 1000);
+    }
+
+    function renderQuiz() {
+      const c = document.getElementById('quizContainer');
+      c.innerHTML = QUIZ.map((q, i) => `
+        <div class="card card-glow" style="margin-bottom:20px;">
+          <div class="quiz-num">ข้อที่ ${i+1} / 10</div>
+          <div class="quiz-q">${q.q}</div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            ${q.o.map((opt, oi) => {
+              const isSelected = answers[i] === oi;
+              const isCorrect = oi === q.a;
+              let cls = 'opt';
+              if(isSubmitted) {
+                if(isSelected && !isCorrect) cls += ' wrong';
+                if(isCorrect) cls += ' correct';
+              } else if(isSelected) {
+                cls += ' selected';
+              }
+              return `<button class="${cls}" ${isSubmitted ? 'disabled' : ''} onclick="pickAns(${i}, ${oi})">
+                <div class="opt-circle">${isSubmitted && isCorrect ? '✓' : (isSubmitted && isSelected && !isCorrect ? '×' : '')}</div>
+                ${opt}
+              </button>`;
+            }).join('')}
+          </div>
+          <div class="exp ${isSubmitted ? 'show' : ''}">💡 <b>คำอธิบาย:</b> ${q.e}</div>
+        </div>
+      `).join('');
+    }
+
+    function pickAns(qIndex, oIndex) {
+      if(isSubmitted) return;
+      answers[qIndex] = oIndex;
+      renderQuiz();
+    }
+
+    function submitQuiz() {
+      if(Object.keys(answers).length < QUIZ.length && timeLeft > 0) {
+        if(!confirm('คุณยังทำไม่ครบทุกข้อ แน่ใจหรือไม่ว่าจะส่งคำตอบ?')) return;
+      }
+      
+      clearInterval(timerInterval);
+      isSubmitted = true;
+      const score = window.Utils.calcScore(answers, QUIZ);
+      
+      let prog = window.Utils.Storage.get('cb_progress') || {};
+      prog[isPost ? 'postTest' : 'preTest'] = { score, answers, time: 15*60 - timeLeft };
+      window.Utils.Storage.set('cb_progress', prog);
+      window.Utils.syncToGoogleSheet(isPost ? 'แบบทดสอบหลังเรียน' : 'แบบทดสอบก่อนเรียน');
+      
+      document.getElementById('timerDisplay').style.display = 'none';
+      document.getElementById('submitBtn').style.display = 'none';
+      
+      renderQuiz();
+      
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.Utils.showToast(`ส่งคำตอบแล้ว! ได้คะแนน ${score}/10`);
+      if(score >= 8) setTimeout(() => window.Utils.confetti(), 800);
+      
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 4000);
+    }
+  </script>
+</body>
+</html>
+

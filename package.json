@@ -1,0 +1,16 @@
+{
+  "name": "chatbot-learning-platform",
+  "private": true,
+  "version": "1.0.0",
+  "description": "ระบบบทเรียนออนไลน์วิชาการสร้างแชทบอท",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.2.0"
+  },
+  "author": "",
+  "license": "ISC"
+}

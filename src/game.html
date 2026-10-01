@@ -1,0 +1,273 @@
+﻿<!DOCTYPE html>
+<html lang="th" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>เกมทบทวนความรู้ - การสร้างแชทบอท</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/assets/css/base.css">
+  <link rel="stylesheet" href="/src/assets/css/layout.css">
+  <link rel="stylesheet" href="/src/assets/css/components.css">
+  <link rel="stylesheet" href="/src/assets/css/animations.css">
+  <style>
+    .nav-top { position: relative; z-index: 100; background: rgba(5,8,21,0.85); backdrop-filter: var(--blur); padding: 16px 24px; border-bottom: 1px solid var(--border2); display: flex; align-items: center; justify-content: space-between; }
+    [data-theme="light"] .nav-top { background: rgba(240,242,255,0.9); }
+    
+    .game-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin: 14px 0; }
+    .game-opt { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border: 1.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--card); color: var(--tx); font: inherit; font-size: 0.95rem; cursor: pointer; transition: var(--t); text-align: left; }
+    .game-opt:hover:not(:disabled) { border-color: var(--pr); transform: translateY(-3px); background: rgba(124,107,240,0.1); }
+    .game-opt.ok { border-color: var(--acc); background: rgba(6,214,160,0.1); color: var(--acc); animation: successbounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .game-opt.no { border-color: #f72585; animation: shakeme 0.3s ease; }
+    .game-opt:disabled { cursor: default; }
+    
+    .game-num { width: 28px; height: 28px; border-radius: 8px; background: var(--g1); color: #fff; font-weight: 800; font-size: 0.85rem; display: grid; place-items: center; flex-shrink: 0; }
+    
+    .match-sentence { background: rgba(124,107,240,0.08); border: 1px solid rgba(124,107,240,0.2); border-radius: var(--radius-sm); padding: 16px; margin: 14px 0 8px; }
+    .match-opts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .match-btn { padding: 8px 18px; border: 1.5px solid var(--border2); border-radius: 100px; background: var(--card); color: var(--tx); font: inherit; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: var(--t); }
+    .match-btn:hover:not(:disabled) { border-color: var(--pr); color: var(--pr2); transform: scale(1.05); }
+    .match-btn.ok { border-color: var(--acc); background: rgba(6,214,160,0.12); color: var(--acc); }
+    .match-btn.no { border-color: #f72585; background: rgba(247,37,133,0.1); color: #f72585; }
+    .match-btn:disabled { cursor: default; }
+    
+    .error-chat { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; background: rgba(0,0,0,0.2); padding: 20px; border-radius: var(--radius-sm); }
+    [data-theme="light"] .error-chat { background: #f8f9fa; }
+    .bubble { max-width: 85%; padding: 10px 14px; border-radius: 16px; font-size: 0.9rem; }
+    .bubble.user { align-self: flex-end; background: linear-gradient(135deg, #7c6bf0, #a78bfa); color: #fff; border-bottom-right-radius: 4px; }
+    .bubble.bot { align-self: flex-start; background: var(--card); border: 1px solid var(--border2); color: var(--tx); border-bottom-left-radius: 4px; }
+    
+    .tabs { display: flex; border-bottom: 2px solid var(--border2); margin-bottom: 20px; }
+    .tab { padding: 12px 24px; font-weight: 700; cursor: pointer; color: var(--tx2); border-bottom: 3px solid transparent; margin-bottom: -2px; transition: var(--t); }
+    .tab:hover { color: var(--tx); }
+    .tab.active { color: var(--pr); border-color: var(--pr); }
+    
+    .game-section { display: none; animation: pageIn 0.4s ease; }
+    .game-section.active { display: block; }
+  </style>
+</head>
+<body>
+  <div class="bg-grad"></div>
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <div class="nav-top">
+    <a href="/" class="btn btn-ghost" style="padding: 6px 12px;">← กลับ</a>
+    <div class="nav-title">🎮 มินิเกม 3 แบบ</div>
+    <div></div>
+  </div>
+
+  <main class="page" style="padding-top: 20px;">
+    
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab(1)" id="tab1">1. เรียงลำดับ</div>
+      <div class="tab" onclick="switchTab(2)" id="tab2">2. จับคู่ Intent</div>
+      <div class="tab" onclick="switchTab(3)" id="tab3">3. หาจุดบกพร่อง</div>
+    </div>
+
+    <!-- GAME 1: Sequence -->
+    <div class="game-section active" id="game1">
+      <div class="card card-glow">
+        <h2 class="sec-title">เรียงลำดับขั้นตอนการสร้างแชทบอท</h2>
+        <p class="sec-sub">คลิกที่ตัวเลือกเพื่อเรียงตั้งแต่ข้อแรกจนถึงข้อสุดท้ายให้ถูกต้อง</p>
+      </div>
+      <div class="game-grid" id="seqGrid"></div>
+      <div class="card card-sm" style="margin-top: 20px;" id="seqStatus"></div>
+      <div style="margin-top: 20px;"><button class="btn btn-secondary" onclick="initGame1()">🔄 รีเซ็ต</button></div>
+    </div>
+
+    <!-- GAME 2: Match Intent -->
+    <div class="game-section" id="game2">
+      <div class="card card-glow">
+        <h2 class="sec-title">จับคู่ประโยคกับ Intent</h2>
+        <p class="sec-sub">เจตนาของผู้ใช้ในประโยคต่อไปนี้คืออะไร?</p>
+      </div>
+      <div id="matchContainer"></div>
+      <div class="card card-sm" style="margin-top: 20px;" id="matchStatus"></div>
+      <div style="margin-top: 20px;"><button class="btn btn-secondary" onclick="initGame2()">🔄 รีเซ็ต</button></div>
+    </div>
+
+    <!-- GAME 3: Find UX Error -->
+    <div class="game-section" id="game3">
+      <div class="card card-glow">
+        <h2 class="sec-title">ชี้ข้อผิดพลาด (UX Error)</h2>
+        <p class="sec-sub">บทสนทนานี้มีการออกแบบที่ผิดพลาดตรงไหน?</p>
+      </div>
+      <div class="error-chat">
+        <div class="bubble user">สวัสดี ต้องการสั่งพิซซ่า</div>
+        <div class="bubble bot">ขออภัย ฉันไม่เข้าใจสิ่งที่คุณพูด กรุณาพิมพ์ใหม่</div>
+        <div class="bubble user">อ้าว สั่งพิซซ่าไง</div>
+        <div class="bubble bot">ขออภัย ฉันไม่เข้าใจสิ่งที่คุณพูด กรุณาพิมพ์ใหม่</div>
+      </div>
+      <div id="uxGrid" class="game-grid"></div>
+      <div class="card card-sm" style="margin-top: 20px; display: none;" id="uxStatus">
+        <span class="hl">✅ ถูกต้อง!</span> Fallback ที่ดีควรให้ทางออกผู้ใช้ ไม่ใช่แค่บอกว่าไม่เข้าใจซ้ำๆ
+      </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 40px; margin-bottom: 40px;">
+      <button class="btn btn-primary" onclick="markGamesDone()">💾 บันทึกการเล่นเกมและกลับหน้าหลัก</button>
+    </div>
+  </main>
+
+  <button class="theme-toggle" id="themeToggle">🌙</button>
+
+  <script src="/src/assets/js/utils.js"></script>
+  <script src="/src/assets/js/nav.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      window.Nav.renderTopNav('game');
+      window.Nav.protectPage('game');
+      window.Utils.initTheme();
+      const themeBtn = document.getElementById('themeToggle');
+      if(themeBtn) themeBtn.addEventListener('click', window.Utils.toggleTheme);
+      
+      initGame1();
+      initGame2();
+      initGame3();
+    });
+
+    function switchTab(t) {
+      document.querySelectorAll('.tab').forEach((el, i) => {
+        el.classList.toggle('active', i + 1 === t);
+      });
+      document.querySelectorAll('.game-section').forEach((el, i) => {
+        el.classList.toggle('active', i + 1 === t);
+      });
+    }
+
+    // --- GAME 1 ---
+    const SEQ_ANS = ['กำหนดเป้าหมาย', 'วิเคราะห์กลุ่มผู้ใช้', 'ออกแบบบทสนทนา (Flow)', 'สร้างบนแพลตฟอร์ม', 'ทดสอบและแก้บั๊ก'];
+    let seqState = { order: [], done: 0, miss: 0 };
+    
+    function initGame1() {
+      seqState.order = SEQ_ANS.map((_, i) => i).sort(() => Math.random() - 0.5);
+      seqState.done = 0; seqState.miss = 0;
+      renderGame1();
+    }
+    
+    function pickSeq(index) {
+      if(index === seqState.done) {
+        seqState.done++;
+        if(seqState.done === SEQ_ANS.length) window.Utils.confetti();
+      } else {
+        seqState.miss++;
+      }
+      renderGame1();
+    }
+    
+    function renderGame1() {
+      document.getElementById('seqGrid').innerHTML = seqState.order.map((realIdx) => {
+        const isDone = realIdx < seqState.done;
+        return `<button class="game-opt ${isDone ? 'ok' : ''}" ${isDone ? 'disabled' : ''} onclick="pickSeq(${realIdx})">
+          ${isDone ? `<div class="game-num">${realIdx + 1}</div>` : `<div class="game-num" style="background:var(--border);color:var(--tx2)">?</div>`}
+          ${SEQ_ANS[realIdx]}
+        </button>`;
+      }).join('');
+      
+      document.getElementById('seqStatus').innerHTML = `ตอบผิด <b style="color:var(--pink)">${seqState.miss}</b> ครั้ง &bull; ผ่าน <b style="color:var(--acc)">${seqState.done}/${SEQ_ANS.length}</b> ${seqState.done === SEQ_ANS.length ? ' <span class="hl">🎉 ยอดเยี่ยม!</span>' : ''}`;
+    }
+
+    // --- GAME 2 ---
+    const MATCH_DATA = [
+      { text: "มีโปรโมชั่นอะไรบ้างเดือนนี้", ans: "ถามโปรโมชั่น" },
+      { text: "สอบถามราคาชุดเซ็ต 1 หน่อยครับ", ans: "ถามราคา" },
+      { text: "ขอยกเลิกออเดอร์ที่สั่งไปเมื่อกี้", ans: "ยกเลิกการสั่งซื้อ" },
+      { text: "สาขาที่ใกล้ที่สุดอยู่ที่ไหน", ans: "ค้นหาสาขา" }
+    ];
+    const MATCH_OPTS = ["ถามราคา", "ค้นหาสาขา", "ยกเลิกการสั่งซื้อ", "ถามโปรโมชั่น"];
+    let matchState = {};
+    
+    function initGame2() {
+      matchState = {};
+      renderGame2();
+    }
+    
+    function pickMatch(qIdx, ansTxt) {
+      matchState[qIdx] = ansTxt;
+      if(Object.keys(matchState).length === MATCH_DATA.length) {
+        const correct = MATCH_DATA.filter((m, i) => matchState[i] === m.ans).length;
+        if(correct === MATCH_DATA.length) window.Utils.confetti();
+      }
+      renderGame2();
+    }
+    
+    function renderGame2() {
+      document.getElementById('matchContainer').innerHTML = MATCH_DATA.map((m, i) => {
+        return `<div class="match-sentence">
+          <div style="font-size:0.8rem; color:var(--tx2); margin-bottom:4px">ผู้ใช้พิมพ์:</div>
+          <b style="font-size:1.05rem;">"${m.text}"</b>
+          <div class="match-opts">
+            ${MATCH_OPTS.map(opt => {
+              const picked = matchState[i];
+              let c = 'match-btn';
+              if(picked) {
+                if(opt === m.ans) c += ' ok';
+                else if(opt === picked) c += ' no';
+              }
+              return `<button class="${c}" ${picked ? 'disabled' : ''} onclick="pickMatch(${i}, '${opt}')">${opt}</button>`;
+            }).join('')}
+          </div>
+        </div>`;
+      }).join('');
+      
+      const doneLen = Object.keys(matchState).length;
+      if(doneLen === MATCH_DATA.length) {
+        const correct = MATCH_DATA.filter((m, i) => matchState[i] === m.ans).length;
+        document.getElementById('matchStatus').innerHTML = `คุณตอบถูก <b style="color:var(--acc);font-size:1.2rem;">${correct} / ${MATCH_DATA.length}</b> ข้อ! ${correct===MATCH_DATA.length ? '🎉 เพอร์เฟค' : 'ลองใหม่ได้นะ'}`;
+        document.getElementById('matchStatus').style.display = 'block';
+      } else {
+        document.getElementById('matchStatus').style.display = 'none';
+      }
+    }
+
+    // --- GAME 3 ---
+    let uxDone = false;
+    function initGame3() {
+      uxDone = false;
+      document.getElementById('uxStatus').style.display = 'none';
+      renderGame3();
+    }
+    
+    function pickUx(isCorrect) {
+      uxDone = true;
+      document.getElementById('uxStatus').style.display = 'block';
+      if(isCorrect) {
+        window.Utils.confetti();
+      } else {
+        document.getElementById('uxStatus').innerHTML = `<span style="color:#f72585">❌ ยังไม่ถูกต้อง</span> ข้อนี้เกี่ยวกับ Fallback message (ตอนที่บอทไม่เข้าใจ)`;
+      }
+      renderGame3();
+    }
+    
+    function renderGame3() {
+      const opts = [
+        { t: "บอทไม่ควรตั้งค่า Fallback เลย", correct: false },
+        { t: "บอทตอบ Fallback แต่ไม่มีปุ่มตัวเลือกหรือทางออกให้ผู้ใช้", correct: true },
+        { t: "ข้อความผู้ใช้ยาวเกินไป", correct: false },
+        { t: "สีของแชทไม่สวยงาม", correct: false }
+      ];
+      
+      document.getElementById('uxGrid').innerHTML = opts.map(o => `
+        <button class="game-opt ${uxDone && o.correct ? 'ok' : (uxDone && !o.correct ? 'no' : '')}" ${uxDone ? 'disabled' : ''} onclick="pickUx(${o.correct})">
+          ${o.t}
+        </button>
+      `).join('');
+    }
+
+    function markGamesDone() {
+      let prog = window.Utils.Storage.get('cb_progress') || {};
+      if(!prog.games) prog.games = {};
+      prog.games.game1 = true;
+      prog.games.game2 = true;
+      prog.games.game3 = true;
+      window.Utils.Storage.set('cb_progress', prog);
+      window.Utils.syncToGoogleSheet('มินิเกม');
+      window.Utils.showToast('✅ บันทึกสถานะการเล่นเกมแล้ว!');
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 1000);
+    }
+  </script>
+</body>
+</html>
+
+
