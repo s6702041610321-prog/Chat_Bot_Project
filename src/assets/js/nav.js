@@ -1,14 +1,14 @@
-window.Nav = (function() {
+﻿window.Nav = (function() {
   function renderTopNav(activeId) {
     const nav = document.createElement('nav');
     nav.className = 'top-navbar no-print';
     
     const items = [
       { id: 'home', label: 'หน้าหลัก', href: '/' },
-      { id: 'pre', label: 'แบบทดสอบก่อนเรียน', href: '/src/quiz.html?type=pre' },
-      { id: 'lesson', label: 'บทเรียน', href: '/src/lesson.html' },
-      { id: 'game', label: 'เกมเสริมการเรียนรู้', href: '/src/game.html' },
-      { id: 'post', label: 'แบบทดสอบหลังเรียน', href: '/src/quiz.html?type=post' }
+      { id: 'pre', label: 'แบบทดสอบก่อนเรียน', href: '/quiz?type=pre' },
+      { id: 'lesson', label: 'บทเรียน', href: '/lesson' },
+      { id: 'game', label: 'เกมเสริมการเรียนรู้', href: '/game' },
+      { id: 'post', label: 'แบบทดสอบหลังเรียน', href: '/quiz?type=post' }
     ];
 
     let html = '<div class="nav-container">';
@@ -68,3 +68,4 @@ window.Nav = (function() {
 
   return { renderTopNav, checkAccess, protectPage };
 })();
+

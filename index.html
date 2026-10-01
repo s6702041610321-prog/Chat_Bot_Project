@@ -74,11 +74,11 @@
       const progress = window.Utils.Storage.get('cb_progress') || {};
       
       const menus = [
-        { id: 'pre', icon: '📝', title: 'แบบทดสอบก่อนเรียน', desc: 'วัดความรู้พื้นฐานก่อนเริ่มเรียน (10 ข้อ)', link: '/src/quiz.html?type=pre', done: progress.preTest !== null && progress.preTest !== undefined },
-        { id: 'lesson', icon: '📚', title: 'บทเรียน & แฟลชการ์ด', desc: 'เรียนรู้ทฤษฎีและการออกแบบแชทบอท', link: '/src/lesson.html', done: progress.lessons && Object.keys(progress.lessons).length >= 6 },
-        { id: 'worksheet', icon: '📋', title: 'ใบงานปฏิบัติ', desc: 'ออกแบบและสร้างแชทบอท (3 ใบงาน)', link: '/src/worksheet.html', done: progress.worksheets && Object.keys(progress.worksheets).length >= 3 },
-        { id: 'game', icon: '🎮', title: 'เกมทบทวนความรู้', desc: 'สนุกไปกับเกม 3 รูปแบบ', link: '/src/game.html', done: progress.games && Object.keys(progress.games).length >= 3 },
-        { id: 'post', icon: '✅', title: 'แบบทดสอบหลังเรียน', desc: 'วัดผลสัมฤทธิ์หลังเรียน (10 ข้อ)', link: '/src/quiz.html?type=post', done: progress.postTest !== null && progress.postTest !== undefined }
+        { id: 'pre', icon: '📝', title: 'แบบทดสอบก่อนเรียน', desc: 'วัดความรู้พื้นฐานก่อนเริ่มเรียน (10 ข้อ)', link: '/quiz?type=pre', done: progress.preTest !== null && progress.preTest !== undefined },
+        { id: 'lesson', icon: '📚', title: 'บทเรียน & แฟลชการ์ด', desc: 'เรียนรู้ทฤษฎีและการออกแบบแชทบอท', link: '/lesson', done: progress.lessons && Object.keys(progress.lessons).length >= 6 },
+        { id: 'worksheet', icon: '📋', title: 'ใบงานปฏิบัติ', desc: 'ออกแบบและสร้างแชทบอท (3 ใบงาน)', link: '/worksheet', done: progress.worksheets && Object.keys(progress.worksheets).length >= 3 },
+        { id: 'game', icon: '🎮', title: 'เกมทบทวนความรู้', desc: 'สนุกไปกับเกม 3 รูปแบบ', link: '/game', done: progress.games && Object.keys(progress.games).length >= 3 },
+        { id: 'post', icon: '✅', title: 'แบบทดสอบหลังเรียน', desc: 'วัดผลสัมฤทธิ์หลังเรียน (10 ข้อ)', link: '/quiz?type=post', done: progress.postTest !== null && progress.postTest !== undefined }
       ];
 
       const html = menus.map(m => `
@@ -95,4 +95,5 @@
   </script>
 </body>
 </html>
+
 
