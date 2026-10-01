@@ -1,10 +1,9 @@
 ﻿{
-  "cleanUrls": true,
   "rewrites": [
-    { "source": "/quiz", "destination": "/pages/quiz" },
-    { "source": "/lesson", "destination": "/pages/lesson" },
-    { "source": "/game", "destination": "/pages/game" },
-    { "source": "/worksheet", "destination": "/pages/worksheet" },
-    { "source": "/teacher", "destination": "/pages/teacher" }
+    { "source": "/quiz", "destination": "/pages/quiz.html" },
+    { "source": "/lesson", "destination": "/pages/lesson.html" },
+    { "source": "/game", "destination": "/pages/game.html" },
+    { "source": "/worksheet", "destination": "/pages/worksheet.html" },
+    { "source": "/teacher", "destination": "/pages/teacher.html" }
   ]
 }
