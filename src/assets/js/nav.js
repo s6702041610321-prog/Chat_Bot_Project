@@ -1,4 +1,4 @@
-﻿window.Nav = (function() {
+window.Nav = (function() {
   function renderTopNav(activeId) {
     const nav = document.createElement('nav');
     nav.className = 'top-navbar no-print';
@@ -14,7 +14,7 @@
     let html = '<div class="nav-container">';
     items.forEach(item => {
       const isActive = item.id === activeId ? 'active' : '';
-      html += <a href="$" class="nav-item $" onclick="return Nav.checkAccess('$', event)">$</a>;
+      html += `<a href="${item.href}" class="nav-item ${isActive}" onclick="return Nav.checkAccess('${item.id}', event)">${item.label}</a>`;
     });
     html += '</div>';
     nav.innerHTML = html;
