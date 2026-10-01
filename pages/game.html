@@ -1,274 +1,437 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="th" data-theme="dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>เกมทบทวนความรู้ - การสร้างแชทบอท</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>เกม RPG - การสร้างแชทบอท</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/src/assets/css/base.css">
   <link rel="stylesheet" href="/src/assets/css/layout.css">
   <link rel="stylesheet" href="/src/assets/css/components.css">
-  <link rel="stylesheet" href="/src/assets/css/animations.css">
   <style>
-    .nav-top { position: relative; z-index: 100; background: rgba(5,8,21,0.85); backdrop-filter: var(--blur); padding: 16px 24px; border-bottom: 1px solid var(--border2); display: flex; align-items: center; justify-content: space-between; }
-    [data-theme="light"] .nav-top { background: rgba(240,242,255,0.9); }
+    /* ซ่อน Scrollbar เวลาเล่นเกม */
+    body { overflow-y: scroll; }
     
-    .game-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin: 14px 0; }
-    .game-opt { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border: 1.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--card); color: var(--tx); font: inherit; font-size: 0.95rem; cursor: pointer; transition: var(--t); text-align: left; }
-    .game-opt:hover:not(:disabled) { border-color: var(--pr); transform: translateY(-3px); background: rgba(124,107,240,0.1); }
-    .game-opt.ok { border-color: var(--acc); background: rgba(6,214,160,0.1); color: var(--acc); animation: successbounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
-    .game-opt.no { border-color: #f72585; animation: shakeme 0.3s ease; }
-    .game-opt:disabled { cursor: default; }
+    #gameContainer {
+      position: relative;
+      width: 100%;
+      max-width: 800px;
+      height: 500px;
+      margin: 0 auto;
+      background: #0f172a;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 2px solid var(--border2);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
     
-    .game-num { width: 28px; height: 28px; border-radius: 8px; background: var(--g1); color: #fff; font-weight: 800; font-size: 0.85rem; display: grid; place-items: center; flex-shrink: 0; }
+    #gameCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: #1e293b; /* สีพื้นหลังฉาก */
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.95);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .color-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .color-btn.selected {
+      border-color: #fff;
+      transform: scale(1.2);
+    }
     
-    .match-sentence { background: rgba(124,107,240,0.08); border: 1px solid rgba(124,107,240,0.2); border-radius: var(--radius-sm); padding: 16px; margin: 14px 0 8px; }
-    .match-opts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-    .match-btn { padding: 8px 18px; border: 1.5px solid var(--border2); border-radius: 100px; background: var(--card); color: var(--tx); font: inherit; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: var(--t); }
-    .match-btn:hover:not(:disabled) { border-color: var(--pr); color: var(--pr2); transform: scale(1.05); }
-    .match-btn.ok { border-color: var(--acc); background: rgba(6,214,160,0.12); color: var(--acc); }
-    .match-btn.no { border-color: #f72585; background: rgba(247,37,133,0.1); color: #f72585; }
-    .match-btn:disabled { cursor: default; }
+    .dialogue-box {
+      display: none;
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 600px;
+      background: rgba(30, 41, 59, 0.95);
+      backdrop-filter: blur(8px);
+      padding: 24px;
+      border-radius: 12px;
+      border: 1px solid var(--pr);
+      z-index: 20;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      animation: slideUp 0.3s ease;
+    }
     
-    .error-chat { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; background: rgba(0,0,0,0.2); padding: 20px; border-radius: var(--radius-sm); }
-    [data-theme="light"] .error-chat { background: #f8f9fa; }
-    .bubble { max-width: 85%; padding: 10px 14px; border-radius: 16px; font-size: 0.9rem; }
-    .bubble.user { align-self: flex-end; background: linear-gradient(135deg, #7c6bf0, #a78bfa); color: #fff; border-bottom-right-radius: 4px; }
-    .bubble.bot { align-self: flex-start; background: var(--card); border: 1px solid var(--border2); color: var(--tx); border-bottom-left-radius: 4px; }
+    .npc-name {
+      font-weight: 800;
+      color: var(--pr2);
+      margin-bottom: 8px;
+      font-size: 1.1rem;
+    }
     
-    .tabs { display: flex; border-bottom: 2px solid var(--border2); margin-bottom: 20px; }
-    .tab { padding: 12px 24px; font-weight: 700; cursor: pointer; color: var(--tx2); border-bottom: 3px solid transparent; margin-bottom: -2px; transition: var(--t); }
-    .tab:hover { color: var(--tx); }
-    .tab.active { color: var(--pr); border-color: var(--pr); }
+    .npc-text {
+      color: #fff;
+      margin-bottom: 16px;
+      font-size: 1rem;
+      line-height: 1.6;
+    }
     
-    .game-section { display: none; animation: pageIn 0.4s ease; }
-    .game-section.active { display: block; }
+    .choice-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border2);
+      padding: 10px 16px;
+      border-radius: 8px;
+      color: #fff;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+      font-family: inherit;
+    }
+    .choice-btn:hover {
+      background: rgba(99, 102, 241, 0.2);
+      border-color: var(--pr);
+    }
   </style>
 </head>
 <body>
   <div class="bg-grad"></div>
   <div class="toast-wrap" id="toastWrap"></div>
 
-  <div class="nav-top">
-    <a href="/" class="btn btn-ghost" style="padding: 6px 12px;">← กลับ</a>
-    <div class="nav-title">🎮 มินิเกม 3 แบบ</div>
-    <div></div>
-  </div>
-
   <main class="page" style="padding-top: 20px;">
     
-    <div class="tabs">
-      <div class="tab active" onclick="switchTab(1)" id="tab1">1. เรียงลำดับ</div>
-      <div class="tab" onclick="switchTab(2)" id="tab2">2. จับคู่ Intent</div>
-      <div class="tab" onclick="switchTab(3)" id="tab3">3. หาจุดบกพร่อง</div>
+    <div class="card card-glow" style="margin-bottom: 20px; padding: 20px;">
+      <h2 class="sec-title">🎮 AI Village (RPG Prototype)</h2>
+      <p class="sec-sub" style="margin-bottom:0;">เดินสำรวจเมือง พูดคุยกับชาวบ้าน และช่วยพวกเขาตั้งค่าแชทบอทให้ถูกต้อง!</p>
     </div>
 
-    <!-- GAME 1: Sequence -->
-    <div class="game-section active" id="game1">
-      <div class="card card-glow">
-        <h2 class="sec-title">เรียงลำดับขั้นตอนการสร้างแชทบอท</h2>
-        <p class="sec-sub">คลิกที่ตัวเลือกเพื่อเรียงตั้งแต่ข้อแรกจนถึงข้อสุดท้ายให้ถูกต้อง</p>
+    <!-- พื้นที่แสดงเกม -->
+    <div id="gameContainer">
+      
+      <!-- หน้าสร้างตัวละคร -->
+      <div id="setupScreen" class="overlay">
+        <h2 style="font-size: 2rem; margin-bottom: 10px; color: #fff;">สร้างตัวละครของคุณ</h2>
+        
+        <div style="margin: 20px 0; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 12px; border: 1px solid var(--border2);">
+          <!-- พรีวิวตัวละคร -->
+          <canvas id="previewCanvas" width="100" height="100" style="margin-bottom: 20px;"></canvas>
+          
+          <div style="margin-bottom: 16px;">
+            <p style="margin-bottom: 8px; font-weight: 600; color: #94a3b8;">สีผิว</p>
+            <div style="display: flex; gap: 10px; justify-content: center;" id="skinColors">
+              <div class="color-btn selected" style="background: #fde047;" onclick="setSkin('#fde047', this)"></div>
+              <div class="color-btn" style="background: #fdba74;" onclick="setSkin('#fdba74', this)"></div>
+              <div class="color-btn" style="background: #d1d5db;" onclick="setSkin('#d1d5db', this)"></div>
+            </div>
+          </div>
+          
+          <div>
+            <p style="margin-bottom: 8px; font-weight: 600; color: #94a3b8;">สีเสื้อ</p>
+            <div style="display: flex; gap: 10px; justify-content: center;" id="shirtColors">
+              <div class="color-btn selected" style="background: #3b82f6;" onclick="setShirt('#3b82f6', this)"></div>
+              <div class="color-btn" style="background: #ef4444;" onclick="setShirt('#ef4444', this)"></div>
+              <div class="color-btn" style="background: #10b981;" onclick="setShirt('#10b981', this)"></div>
+              <div class="color-btn" style="background: #8b5cf6;" onclick="setShirt('#8b5cf6', this)"></div>
+            </div>
+          </div>
+        </div>
+        
+        <button class="btn btn-primary" onclick="startGame()" style="padding: 12px 30px; font-size: 1.1rem;">เข้าสู่เมือง AI 🚀</button>
       </div>
-      <div class="game-grid" id="seqGrid"></div>
-      <div class="card card-sm" style="margin-top: 20px;" id="seqStatus"></div>
-      <div style="margin-top: 20px;"><button class="btn btn-secondary" onclick="initGame1()">🔄 รีเซ็ต</button></div>
+
+      <!-- กล่องสนทนา -->
+      <div id="dialogueBox" class="dialogue-box">
+        <div class="npc-name" id="npcName">ชื่อ NPC</div>
+        <div class="npc-text" id="npcText">ข้อความทักทาย</div>
+        <div id="choicesContainer">
+          <!-- ปุ่มคำตอบจะถูกสร้างที่นี่ -->
+        </div>
+      </div>
+
+      <!-- แคนวาสหลัก -->
+      <canvas id="gameCanvas" width="800" height="500"></canvas>
     </div>
 
-    <!-- GAME 2: Match Intent -->
-    <div class="game-section" id="game2">
-      <div class="card card-glow">
-        <h2 class="sec-title">จับคู่ประโยคกับ Intent</h2>
-        <p class="sec-sub">เจตนาของผู้ใช้ในประโยคต่อไปนี้คืออะไร?</p>
-      </div>
-      <div id="matchContainer"></div>
-      <div class="card card-sm" style="margin-top: 20px;" id="matchStatus"></div>
-      <div style="margin-top: 20px;"><button class="btn btn-secondary" onclick="initGame2()">🔄 รีเซ็ต</button></div>
-    </div>
-
-    <!-- GAME 3: Find UX Error -->
-    <div class="game-section" id="game3">
-      <div class="card card-glow">
-        <h2 class="sec-title">ชี้ข้อผิดพลาด (UX Error)</h2>
-        <p class="sec-sub">บทสนทนานี้มีการออกแบบที่ผิดพลาดตรงไหน?</p>
-      </div>
-      <div class="error-chat">
-        <div class="bubble user">สวัสดี ต้องการสั่งพิซซ่า</div>
-        <div class="bubble bot">ขออภัย ฉันไม่เข้าใจสิ่งที่คุณพูด กรุณาพิมพ์ใหม่</div>
-        <div class="bubble user">อ้าว สั่งพิซซ่าไง</div>
-        <div class="bubble bot">ขออภัย ฉันไม่เข้าใจสิ่งที่คุณพูด กรุณาพิมพ์ใหม่</div>
-      </div>
-      <div id="uxGrid" class="game-grid"></div>
-      <div class="card card-sm" style="margin-top: 20px; display: none;" id="uxStatus">
-        <span class="hl">✅ ถูกต้อง!</span> Fallback ที่ดีควรให้ทางออกผู้ใช้ ไม่ใช่แค่บอกว่าไม่เข้าใจซ้ำๆ
-      </div>
-    </div>
-
-    <div style="text-align: center; margin-top: 40px; margin-bottom: 40px;">
-      <button class="btn btn-primary" onclick="markGamesDone()">💾 บันทึกการเล่นเกมและกลับหน้าหลัก</button>
-    </div>
   </main>
-
-  <button class="theme-toggle" id="themeToggle">🌙</button>
 
   <script type="module" src="/src/assets/js/utils.js"></script>
   <script type="module" src="/src/assets/js/nav.js"></script>
   <script>
+    // --- ตัวแปรหลักของเกม ---
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // ตั้งค่าตัวละครเริ่มต้น
+    let player = {
+      x: 400, y: 350,
+      radius: 14,
+      speed: 4,
+      skinColor: '#fde047',
+      shirtColor: '#3b82f6',
+      facing: 'down'
+    };
+
+    let gameState = 'setup'; // 'setup', 'playing', 'dialogue'
+    let keys = {};
+    let lastRenderTime = 0;
+
+    // NPC Data
+    const npcs = [
+      {
+        x: 200, y: 150, radius: 14, skinColor: '#fca5a5', shirtColor: '#8b5cf6',
+        name: '🤖 ลุงสมหมาย (เจ้าของร้านข้าว)',
+        text: 'สวัสดีวิศวกรน้อย! แชทบอทสั่งอาหารของลุงมันรวนน่ะ ลูกค้าพิมพ์มาว่า "ร้านเปิดกี่โมงครับ" ลุงควรตั้งค่า Intent (เจตนา) ให้ประโยคนี้ว่าอะไรดี?',
+        choices: [
+          { text: 'A. Intent: สั่งซื้อสินค้า', correct: false, reply: 'เอ่อ... ลุงว่ามันไม่ใช่การสั่งของนะ' },
+          { text: 'B. Intent: สอบถามเวลาทำการ', correct: true, reply: 'โอ้! ใช่เลย! บอทลุงตอบได้แล้ว ขอบใจมากไอ้หนู!' },
+          { text: 'C. Intent: ขอพิกัดร้าน', correct: false, reply: 'เขาไม่ได้ถามทางนะลุงว่า...' }
+        ],
+        completed: false
+      },
+      {
+        x: 600, y: 250, radius: 14, skinColor: '#fdba74', shirtColor: '#10b981',
+        name: '👧 พี่สมศรี (แอดมินเพจ)',
+        text: 'นี่น้อง! พี่กำลังปวดหัวเลย ลูกค้าชอบพิมพ์คำว่า "ตังค์" แทนคำว่า "เงิน" แล้วบอทพี่ก็งงเป็นไก่ตาแตก พี่ต้องแก้ปัญหาด้วยวิธีไหนดี?',
+        choices: [
+          { text: 'A. ปล่อยไปเลย ให้ลูกค้าพิมพ์คำว่าเงินเอง', correct: false, reply: 'แบบนั้นลูกค้าด่าพี่ตายเลยนะ!' },
+          { text: 'B. จับคำว่า "ตังค์" ไปสอน (Train) เพิ่มในระบบ', correct: true, reply: 'จริงด้วย! ถ้าเราสอนบอทเพิ่ม มันก็จะฉลาดขึ้น ขอบใจจ้า!' },
+          { text: 'C. ลบบอททิ้งแล้วตอบเอง', correct: false, reply: 'ถ้าตอบเองทัน พี่คงไม่จ้างน้องมาซ่อมบอทหรอกย่ะ!' }
+        ],
+        completed: false
+      }
+    ];
+
+    // แผนที่จำลอง
+    const obstacles = [
+      { x: 150, y: 100, w: 100, h: 40, color: '#334155' }, // โต๊ะลุง
+      { x: 550, y: 200, w: 100, h: 40, color: '#334155' }, // โต๊ะสมศรี
+      { x: 350, y: 200, w: 100, h: 100, color: '#475569' } // น้ำพุกลางเมือง
+    ];
+
+    let currentNPC = null;
+
+    // --- เริ่มต้นระบบ ---
     document.addEventListener('DOMContentLoaded', () => {
       window.Nav.renderTopNav('game');
       window.Nav.protectPage('game');
       window.Utils.initTheme();
-      const themeBtn = document.getElementById('themeToggle');
-      if(themeBtn) themeBtn.addEventListener('click', window.Utils.toggleTheme);
-      
-      initGame1();
-      initGame2();
-      initGame3();
+      drawPreview();
     });
 
-    function switchTab(t) {
-      document.querySelectorAll('.tab').forEach((el, i) => {
-        el.classList.toggle('active', i + 1 === t);
-      });
-      document.querySelectorAll('.game-section').forEach((el, i) => {
-        el.classList.toggle('active', i + 1 === t);
-      });
+    // --- ระบบเลือกตัวละคร ---
+    function setSkin(color, el) {
+      player.skinColor = color;
+      document.querySelectorAll('#skinColors .color-btn').forEach(b => b.classList.remove('selected'));
+      el.classList.add('selected');
+      drawPreview();
+    }
+    function setShirt(color, el) {
+      player.shirtColor = color;
+      document.querySelectorAll('#shirtColors .color-btn').forEach(b => b.classList.remove('selected'));
+      el.classList.add('selected');
+      drawPreview();
     }
 
-    // --- GAME 1 ---
-    const SEQ_ANS = ['กำหนดเป้าหมาย', 'วิเคราะห์กลุ่มผู้ใช้', 'ออกแบบบทสนทนา (Flow)', 'สร้างบนแพลตฟอร์ม', 'ทดสอบและแก้บั๊ก'];
-    let seqState = { order: [], done: 0, miss: 0 };
-    
-    function initGame1() {
-      seqState.order = SEQ_ANS.map((_, i) => i).sort(() => Math.random() - 0.5);
-      seqState.done = 0; seqState.miss = 0;
-      renderGame1();
+    function drawPreview() {
+      const pc = document.getElementById('previewCanvas');
+      const pctx = pc.getContext('2d');
+      pctx.clearRect(0, 0, 100, 100);
+      drawCharacter(pctx, 50, 50, 20, player.skinColor, player.shirtColor);
     }
-    
-    function pickSeq(index) {
-      if(index === seqState.done) {
-        seqState.done++;
-        if(seqState.done === SEQ_ANS.length) window.Utils.confetti();
-      } else {
-        seqState.miss++;
-      }
-      renderGame1();
-    }
-    
-    function renderGame1() {
-      document.getElementById('seqGrid').innerHTML = seqState.order.map((realIdx) => {
-        const isDone = realIdx < seqState.done;
-        return `<button class="game-opt ${isDone ? 'ok' : ''}" ${isDone ? 'disabled' : ''} onclick="pickSeq(${realIdx})">
-          ${isDone ? `<div class="game-num">${realIdx + 1}</div>` : `<div class="game-num" style="background:var(--border);color:var(--tx2)">?</div>`}
-          ${SEQ_ANS[realIdx]}
-        </button>`;
-      }).join('');
+
+    // ฟังก์ชันวาดตัวละคร (ใช้กับทั้ง Preview และตอนเล่น)
+    function drawCharacter(context, x, y, r, skin, shirt) {
+      // วาดตัว (เสื้อ)
+      context.fillStyle = shirt;
+      context.beginPath();
+      context.arc(x, y + r*0.8, r*1.2, Math.PI, 0); // ครึ่งวงกลม
+      context.fill();
       
-      document.getElementById('seqStatus').innerHTML = `ตอบผิด <b style="color:var(--pink)">${seqState.miss}</b> ครั้ง &bull; ผ่าน <b style="color:var(--acc)">${seqState.done}/${SEQ_ANS.length}</b> ${seqState.done === SEQ_ANS.length ? ' <span class="hl">🎉 ยอดเยี่ยม!</span>' : ''}`;
+      // วาดหัว (ผิว)
+      context.fillStyle = skin;
+      context.beginPath();
+      context.arc(x, y - r*0.5, r, 0, Math.PI*2);
+      context.fill();
+
+      // วาดเงาเล็กๆ ใต้ตัว
+      context.fillStyle = 'rgba(0,0,0,0.3)';
+      context.beginPath();
+      context.ellipse(x, y + r*1.2, r*1.5, r*0.4, 0, 0, Math.PI*2);
+      context.fill();
     }
 
-    // --- GAME 2 ---
-    const MATCH_DATA = [
-      { text: "มีโปรโมชั่นอะไรบ้างเดือนนี้", ans: "ถามโปรโมชั่น" },
-      { text: "สอบถามราคาชุดเซ็ต 1 หน่อยครับ", ans: "ถามราคา" },
-      { text: "ขอยกเลิกออเดอร์ที่สั่งไปเมื่อกี้", ans: "ยกเลิกการสั่งซื้อ" },
-      { text: "สาขาที่ใกล้ที่สุดอยู่ที่ไหน", ans: "ค้นหาสาขา" }
-    ];
-    const MATCH_OPTS = ["ถามราคา", "ค้นหาสาขา", "ยกเลิกการสั่งซื้อ", "ถามโปรโมชั่น"];
-    let matchState = {};
-    
-    function initGame2() {
-      matchState = {};
-      renderGame2();
-    }
-    
-    function pickMatch(qIdx, ansTxt) {
-      matchState[qIdx] = ansTxt;
-      if(Object.keys(matchState).length === MATCH_DATA.length) {
-        const correct = MATCH_DATA.filter((m, i) => matchState[i] === m.ans).length;
-        if(correct === MATCH_DATA.length) window.Utils.confetti();
-      }
-      renderGame2();
-    }
-    
-    function renderGame2() {
-      document.getElementById('matchContainer').innerHTML = MATCH_DATA.map((m, i) => {
-        return `<div class="match-sentence">
-          <div style="font-size:0.8rem; color:var(--tx2); margin-bottom:4px">ผู้ใช้พิมพ์:</div>
-          <b style="font-size:1.05rem;">"${m.text}"</b>
-          <div class="match-opts">
-            ${MATCH_OPTS.map(opt => {
-              const picked = matchState[i];
-              let c = 'match-btn';
-              if(picked) {
-                if(opt === m.ans) c += ' ok';
-                else if(opt === picked) c += ' no';
-              }
-              return `<button class="${c}" ${picked ? 'disabled' : ''} onclick="pickMatch(${i}, '${opt}')">${opt}</button>`;
-            }).join('')}
-          </div>
-        </div>`;
-      }).join('');
+    function startGame() {
+      document.getElementById('setupScreen').style.display = 'none';
+      gameState = 'playing';
+      requestAnimationFrame(gameLoop);
       
-      const doneLen = Object.keys(matchState).length;
-      if(doneLen === MATCH_DATA.length) {
-        const correct = MATCH_DATA.filter((m, i) => matchState[i] === m.ans).length;
-        document.getElementById('matchStatus').innerHTML = `คุณตอบถูก <b style="color:var(--acc);font-size:1.2rem;">${correct} / ${MATCH_DATA.length}</b> ข้อ! ${correct===MATCH_DATA.length ? '🎉 เพอร์เฟค' : 'ลองใหม่ได้นะ'}`;
-        document.getElementById('matchStatus').style.display = 'block';
-      } else {
-        document.getElementById('matchStatus').style.display = 'none';
+      // ส่งข้อมูลเข้า Sheet ว่าเริ่มเล่นเกม
+      if(window.Utils.syncToGoogleSheet) window.Utils.syncToGoogleSheet('มินิเกม (RPG เริ่มเล่น)');
+    }
+
+    // --- การควบคุม (Controls) ---
+    window.addEventListener('keydown', e => { keys[e.key] = true; });
+    window.addEventListener('keyup', e => { keys[e.key] = false; });
+
+    // ปุ่ม Spacebar สำหรับคุย
+    window.addEventListener('keydown', e => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        if (gameState === 'playing' && currentNPC) {
+          startDialogue(currentNPC);
+        } else if (gameState === 'dialogue') {
+          // ถ้ากำลังคุยอยู่ อาจจะให้กดเพื่อข้ามได้ (ยังไม่ทำในเวอร์ชันต้นแบบ)
+        }
+      }
+    });
+
+    // --- Game Loop ---
+    function gameLoop(timestamp) {
+      if (gameState !== 'playing') {
+        if(gameState === 'dialogue') draw(); // คงภาพไว้ตอนคุย
+        requestAnimationFrame(gameLoop);
+        return;
+      }
+
+      update();
+      draw();
+      requestAnimationFrame(gameLoop);
+    }
+
+    function update() {
+      let dx = 0;
+      let dy = 0;
+
+      if (keys['ArrowUp'] || keys['w'] || keys['W']) dy -= player.speed;
+      if (keys['ArrowDown'] || keys['s'] || keys['S']) dy += player.speed;
+      if (keys['ArrowLeft'] || keys['a'] || keys['A']) dx -= player.speed;
+      if (keys['ArrowRight'] || keys['d'] || keys['D']) dx += player.speed;
+
+      // ระบบชนขอบจอ
+      if (player.x + dx > player.radius && player.x + dx < canvas.width - player.radius) player.x += dx;
+      if (player.y + dy > player.radius && player.y + dy < canvas.height - player.radius) player.y += dy;
+
+      // ระบบเช็คระยะห่างกับ NPC
+      currentNPC = null;
+      for (let npc of npcs) {
+        let dist = Math.hypot(player.x - npc.x, player.y - npc.y);
+        if (dist < 60) {
+          currentNPC = npc;
+        }
       }
     }
 
-    // --- GAME 3 ---
-    let uxDone = false;
-    function initGame3() {
-      uxDone = false;
-      document.getElementById('uxStatus').style.display = 'none';
-      renderGame3();
-    }
-    
-    function pickUx(isCorrect) {
-      uxDone = true;
-      document.getElementById('uxStatus').style.display = 'block';
-      if(isCorrect) {
-        window.Utils.confetti();
-      } else {
-        document.getElementById('uxStatus').innerHTML = `<span style="color:#f72585">❌ ยังไม่ถูกต้อง</span> ข้อนี้เกี่ยวกับ Fallback message (ตอนที่บอทไม่เข้าใจ)`;
+    function draw() {
+      // ล้างจอและวาดพื้นหลัง
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // วาดลายตารางบนพื้น
+      ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+      ctx.lineWidth = 2;
+      for(let i = 0; i < canvas.width; i+=50) {
+        ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
       }
-      renderGame3();
+      for(let i = 0; i < canvas.height; i+=50) {
+        ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
+      }
+
+      // วาดสิ่งกีดขวาง (โต๊ะ, น้ำพุ)
+      for(let obs of obstacles) {
+        ctx.fillStyle = obs.color;
+        ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+      }
+
+      // วาด NPC
+      for(let npc of npcs) {
+        drawCharacter(ctx, npc.x, npc.y, npc.radius, npc.skinColor, npc.shirtColor);
+        
+        // ถ้า NPC ตัวนี้เป็นตัวที่อยู่ใกล้ ให้ขึ้นไอคอนแจ้งเตือน
+        if (npc === currentNPC) {
+          ctx.fillStyle = '#fff';
+          ctx.font = '14px Inter';
+          ctx.textAlign = 'center';
+          ctx.fillText(npc.completed ? '💬 คุยแล้ว' : '[SPACE] เพื่อคุย', npc.x, npc.y - 30);
+        }
+      }
+
+      // วาด Player
+      drawCharacter(ctx, player.x, player.y, player.radius, player.skinColor, player.shirtColor);
     }
-    
-    function renderGame3() {
-      const opts = [
-        { t: "บอทไม่ควรตั้งค่า Fallback เลย", correct: false },
-        { t: "บอทตอบ Fallback แต่ไม่มีปุ่มตัวเลือกหรือทางออกให้ผู้ใช้", correct: true },
-        { t: "ข้อความผู้ใช้ยาวเกินไป", correct: false },
-        { t: "สีของแชทไม่สวยงาม", correct: false }
-      ];
+
+    // --- ระบบโต้ตอบ (Dialogue System) ---
+    function startDialogue(npc) {
+      gameState = 'dialogue';
+      document.getElementById('dialogueBox').style.display = 'block';
+      document.getElementById('npcName').textContent = npc.name;
       
-      document.getElementById('uxGrid').innerHTML = opts.map(o => `
-        <button class="game-opt ${uxDone && o.correct ? 'ok' : (uxDone && !o.correct ? 'no' : '')}" ${uxDone ? 'disabled' : ''} onclick="pickUx(${o.correct})">
-          ${o.t}
-        </button>
-      `).join('');
+      if (npc.completed) {
+        document.getElementById('npcText').textContent = "ขอบใจมากนะที่ช่วยแก้ปัญหาให้! ตอนนี้บอททำงานเนี๊ยบเลยล่ะ";
+        document.getElementById('choicesContainer').innerHTML = `<button class="choice-btn" onclick="endDialogue()">[ ปิดหน้าต่าง ]</button>`;
+      } else {
+        document.getElementById('npcText').textContent = npc.text;
+        
+        let choicesHTML = '';
+        npc.choices.forEach((choice, index) => {
+          choicesHTML += `<button class="choice-btn" onclick="selectChoice('${npc.name}', ${index})">${choice.text}</button>`;
+        });
+        document.getElementById('choicesContainer').innerHTML = choicesHTML;
+      }
     }
 
-    function markGamesDone() {
-      let prog = window.Utils.Storage.get('cb_progress') || {};
-      if(!prog.games) prog.games = {};
-      prog.games.game1 = true;
-      prog.games.game2 = true;
-      prog.games.game3 = true;
-      window.Utils.Storage.set('cb_progress', prog);
-      window.Utils.syncToGoogleSheet('มินิเกม');
-      window.Utils.showToast('✅ บันทึกสถานะการเล่นเกมแล้ว!');
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 1000);
+    function selectChoice(npcName, choiceIndex) {
+      const npc = npcs.find(n => n.name === npcName);
+      const choice = npc.choices[choiceIndex];
+      
+      document.getElementById('npcText').textContent = choice.reply;
+      document.getElementById('choicesContainer').innerHTML = `<button class="choice-btn" onclick="endDialogue()">[ ถัดไป ]</button>`;
+      
+      if (choice.correct) {
+        npc.completed = true;
+        window.Utils.showToast('✅ ตอบถูกต้อง! ได้รับ EXP +50');
+        checkAllCompleted();
+      } else {
+        window.Utils.showToast('❌ ยังไม่ถูก ลองคิดดูใหม่นะ', 'error');
+      }
     }
+
+    function endDialogue() {
+      document.getElementById('dialogueBox').style.display = 'none';
+      // หน่วงเวลาเล็กน้อยกันการกดปุ่มรัว
+      setTimeout(() => { gameState = 'playing'; }, 100);
+    }
+
+    function checkAllCompleted() {
+      const allDone = npcs.every(n => n.completed);
+      if (allDone) {
+        setTimeout(() => {
+          window.Utils.confetti();
+          window.Utils.showToast('🎉 ยินดีด้วย! คุณช่วยชาวเมืองแก้ไขบอทสำเร็จครบทุกคนแล้ว!', 'success');
+          
+          let prog = window.Utils.Storage.get('cb_progress') || {};
+          prog.games = { ...prog.games, rpg: true };
+          window.Utils.Storage.set('cb_progress', prog);
+          
+          if(window.Utils.syncToGoogleSheet) window.Utils.syncToGoogleSheet('มินิเกม (เคลียร์ RPG)');
+        }, 1000);
+      }
+    }
+
   </script>
 </body>
 </html>
-
-
-
