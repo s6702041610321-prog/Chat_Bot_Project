@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="/src/assets/css/layout.css">
   <link rel="stylesheet" href="/src/assets/css/components.css">
   <link rel="stylesheet" href="/src/assets/css/animations.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     :root {
       --neon-blue: #00f3ff;
@@ -107,7 +108,6 @@
     /* ===================== 1. SORT: Data Pipeline ===================== */
     .sort-board { display:flex; gap:30px; flex-wrap:wrap; }
     .sort-track { flex:1; min-width:300px; background:rgba(0,0,0,0.4); border-radius:16px; padding:20px; border:2px solid rgba(255,255,255,0.05); position:relative; }
-    /* Conveyor belt animation */
     .sort-track::before { content:''; position:absolute; top:0; bottom:0; left:40px; width:4px; background:repeating-linear-gradient(to bottom, rgba(0,243,255,0.5) 0, rgba(0,243,255,0.5) 10px, transparent 10px, transparent 20px); animation:conveyor 1s linear infinite; }
     @keyframes conveyor { from{background-position:0 0} to{background-position:0 20px} }
     
@@ -126,29 +126,6 @@
     .pool-item::before { content:'📦'; font-size:1.2rem; }
     .pool-item:hover { border-color:var(--neon-purple); transform:translateX(5px); box-shadow:0 0 20px rgba(188,19,254,0.3); background:rgba(188,19,254,0.1); }
     .pool-item.used { opacity:0.2; pointer-events:none; transform:scale(0.95); }
-
-    /* ===================== 2. MATCH: Neural Network ===================== */
-    .match-container { position:relative; }
-    .match-area { display:grid; grid-template-columns:1fr 1fr; gap:60px; position:relative; z-index:2; }
-    @media(max-width:768px){.match-area{gap:20px;}}
-    .match-col { display:flex; flex-direction:column; gap:20px; }
-    .match-col-title { font-weight:900; font-size:1rem; color:var(--neon-blue); margin-bottom:10px; text-transform:uppercase; letter-spacing:2px; text-align:center; text-shadow:0 0 10px rgba(0,243,255,0.5); }
-    
-    .match-card { padding:18px 24px; border:2px solid rgba(255,255,255,0.1); border-radius:16px; background:rgba(15,23,42,0.8); cursor:pointer; font-family:inherit; font-size:0.95rem; font-weight:600; color:#fff; transition:0.3s; position:relative; display:flex; align-items:center; justify-content:space-between; box-shadow:0 4px 15px rgba(0,0,0,0.4); }
-    .match-card:hover { border-color:var(--neon-blue); box-shadow:0 0 20px rgba(0,243,255,0.3); transform:scale(1.02); }
-    .match-card.selected { border-color:var(--neon-purple); background:rgba(188,19,254,0.15); box-shadow:0 0 30px rgba(188,19,254,0.5); }
-    .match-card.correct { border-color:var(--neon-green)!important; background:rgba(0,255,102,0.15)!important; box-shadow:0 0 20px rgba(0,255,102,0.4)!important; }
-    .match-card.wrong { border-color:var(--neon-red)!important; background:rgba(255,0,60,0.15)!important; animation:shake .4s; }
-    
-    .node-point { width:16px; height:16px; border-radius:50%; background:#0f172a; border:2px solid rgba(255,255,255,0.3); transition:0.3s; }
-    .match-col:first-child .match-card .node-point { margin-left:10px; }
-    .match-col:last-child .match-card .node-point { margin-right:10px; order:-1; }
-    .match-card.selected .node-point { background:var(--neon-purple); border-color:#fff; box-shadow:0 0 15px var(--neon-purple); }
-    .match-card.paired .node-point { background:var(--clr); border-color:#fff; box-shadow:0 0 15px var(--clr); }
-    
-    #svgLines { position:absolute; inset:0; pointer-events:none; z-index:1; overflow:visible; width:100%; height:100%; }
-    .wire-line { fill:none; stroke-width:4; stroke-linecap:round; animation:drawWire 0.5s ease-out forwards; filter:drop-shadow(0 0 6px var(--clr)); }
-    @keyframes drawWire { from{stroke-dasharray:1000;stroke-dashoffset:1000} to{stroke-dasharray:1000;stroke-dashoffset:0} }
 
     /* ===================== 3. ERROR: Debug Terminal ===================== */
     .terminal-window { background:#0a0a0a; border-radius:12px; border:1px solid #333; overflow:hidden; font-family:'Courier New', monospace; box-shadow:0 20px 50px rgba(0,0,0,0.8); }
@@ -281,7 +258,7 @@
             </div>
             <div class="stage-node sg-cyan" style="left:82%;top:30%" onclick="openGame('match')" id="stageMatch">
               <div class="stage-circle"><span class="stage-num">3</span>🎯</div>
-              <div class="stage-label">เชื่อมวงจร Intent</div>
+              <div class="stage-label">เชื่อมวงจร 3D</div>
               <div class="stage-stars" id="starsMatch">☆☆☆</div>
             </div>
             <div class="stage-node sg-red" style="left:82%;top:70%" onclick="openGame('error')" id="stageError">
@@ -331,8 +308,21 @@
     <!-- ================ 2) SORT ================ -->
     <section id="sortView" class="game-section"><div class="game-top"><div class="game-top-left"><button class="back-btn" onclick="backToHub()">← แผนที่</button><div><div class="round-label" id="sortLbl">🔢 ด่าน 1/3</div><div class="round-sub" id="sortSub"></div></div></div><div class="pbar-w"><div class="pbar-f" id="sortProg" style="width:0%"></div></div></div><div class="game-body" id="sortBody"></div></section>
     
-    <!-- ================ 3) MATCH ================ -->
-    <section id="matchView" class="game-section"><div class="game-top"><div class="game-top-left"><button class="back-btn" onclick="backToHub()">← แผนที่</button><div><div class="round-label" id="matchLbl">🎯 ด่าน 1/2</div><div class="round-sub" id="matchSub"></div></div></div><div class="pbar-w"><div class="pbar-f" id="matchProg" style="width:0%"></div></div></div><div class="game-body" id="matchBody"></div></section>
+    <!-- ================ 3) MATCH 3D ================ -->
+    <section id="matchView" class="game-section">
+      <div class="game-top"><div class="game-top-left"><button class="back-btn" onclick="backToHub()">← แผนที่</button><div><div class="round-label" id="matchLbl">🎯 3D Neural Link</div><div class="round-sub" id="matchSub">หมุนมุมกล้องและจับคู่ Intent ในอวกาศ 3 มิติ</div></div></div><div class="pbar-w"><div class="pbar-f" id="matchProg" style="width:0%"></div></div></div>
+      
+      <!-- Container for 3D Game -->
+      <div class="game-body" id="matchBody" style="padding:0; overflow:hidden; border-radius:16px; border:2px solid var(--neon-purple); position:relative; min-height:500px; display:none;">
+        <!-- HUD Overlay -->
+        <div id="matchCurrentSentence" style="position:absolute; top:20px; left:50%; transform:translateX(-50%); z-index:10; background:rgba(10,15,30,0.8); border:1px solid var(--neon-blue); padding:16px 24px; border-radius:12px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.8); min-width:300px; pointer-events:none;"></div>
+        <!-- 3D Canvas Container -->
+        <div id="match3DContainer" style="width:100%; height:500px; position:relative; cursor:crosshair; background:#000;"></div>
+      </div>
+      
+      <!-- Start/Result Screen -->
+      <div class="game-body" id="matchStartBody"></div>
+    </section>
     
     <!-- ================ 4) ERROR ================ -->
     <section id="errorView" class="game-section"><div class="game-top"><div class="game-top-left"><button class="back-btn" onclick="backToHub()">← แผนที่</button><div><div class="round-label" id="errorLbl">🔍 ข้อ 1/5</div><div class="round-sub" id="errorSub"></div></div></div><div class="pbar-w"><div class="pbar-f" id="errorProg" style="width:0%"></div></div></div><div class="game-body" id="errorBody"></div></section>
@@ -420,7 +410,7 @@ const PAIR_COLORS=['var(--neon-purple)','var(--neon-blue)','var(--neon-yellow)',
 //  STATE
 // ================================================================
 let sortSt={round:0,answers:[],checked:false,_pool:null};
-let matchSt={round:0,selL:null,pairs:{},shR:[],checked:false};
+let matchSt={round:0,shR:[],checked:false};
 let errorSt={idx:0,sel:null,answered:false,score:0};
 let botSt={idx:0,answered:false,score:0};
 let speedSt={idx:0,score:0,answered:false,timer:null,timeLeft:10};
@@ -466,7 +456,7 @@ function backToHub(){rpgRunning=false;if(speedSt.timer)clearInterval(speedSt.tim
 function openGame(k){
   if(k==='rpg'){rpgRunning=true;rpgNPCs.forEach(n=>n.completed=false);rpgState='setup';rpgPlayer.x=400;rpgPlayer.y=380;document.getElementById('rpgSetup').style.display='flex';document.getElementById('rpgDialogue').style.display='none';drawPreview();}
   if(k==='sort'){sortSt={round:0,answers:[],checked:false,_pool:null};initSort();}
-  if(k==='match'){matchSt={round:0,selL:null,pairs:{},shR:[],checked:false};initMatch();}
+  if(k==='match'){matchSt={round:0,shR:[],checked:false};initMatch();}
   if(k==='error'){errorSt={idx:0,sel:null,answered:false,score:0};initError();}
   if(k==='bot'){botSt={idx:0,answered:false,score:0};initBot();}
   if(k==='speed'){speedSt={idx:0,score:0,answered:false,timer:null,timeLeft:10};initSpeed();}
@@ -490,7 +480,6 @@ function drawChar(cx,x,y,r,skin,shirt,isBig=false){
   cx.fillStyle=skin; cx.beginPath(); cx.arc(x, y-r*0.5, r*0.9, 0, Math.PI*2); cx.fill();
   // hair (black)
   cx.fillStyle='#111'; cx.beginPath(); cx.arc(x, y-r*0.75, r*0.95, Math.PI, 0); cx.fill();
-  // eyes if big
   if(isBig){ cx.fillStyle='#000'; cx.beginPath(); cx.arc(x-r*0.3, y-r*0.4, 2, 0, Math.PI*2); cx.fill(); cx.beginPath(); cx.arc(x+r*0.3, y-r*0.4, 2, 0, Math.PI*2); cx.fill(); }
 }
 
@@ -517,40 +506,28 @@ function rpgUpdate(){
 
 function rpgDraw(){
   const c=rpgCtx, w=rpgCanvas.width, h=rpgCanvas.height;
-  
-  // Floor (Cyberpunk grid)
   c.fillStyle='#050a14'; c.fillRect(0,0,w,h);
   c.strokeStyle='rgba(0, 243, 255, 0.15)'; c.lineWidth=2;
   for(let i=0;i<=w;i+=40){c.beginPath();c.moveTo(i,0);c.lineTo(i,h);c.stroke();}
   for(let i=0;i<=h;i+=40){c.beginPath();c.moveTo(0,i);c.lineTo(w,i);c.stroke();}
   
-  // Center Server Core
   c.fillStyle='#0f172a'; c.fillRect(350, 320, 100, 80);
   c.strokeStyle='#00f3ff'; c.lineWidth=2; c.strokeRect(350, 320, 100, 80);
   c.fillStyle='#00f3ff'; c.fillRect(360, 340, 20, 10); c.fillRect(360, 360, 20, 10); c.fillRect(360, 380, 20, 10);
   c.fillStyle='#00ff66'; c.fillRect(420, 340, 10, 10);
   
-  // Terminals
   for(let n of rpgNPCs){
-    // Stand
     c.fillStyle='#1e293b'; c.fillRect(n.x-8, n.y-10, 16, 35);
-    // Screen glowing
     c.shadowColor = n.completed ? '#00ff66' : '#00f3ff';
     c.shadowBlur = 15;
     c.fillStyle = '#0f172a'; c.fillRect(n.x-24, n.y-40, 48, 35);
     c.strokeStyle = n.completed ? '#00ff66' : '#00f3ff'; c.lineWidth = 3; c.strokeRect(n.x-24, n.y-40, 48, 35);
-    c.shadowBlur = 0; // reset
-    // Screen content
+    c.shadowBlur = 0;
     c.fillStyle=n.completed?'#00ff66':'#00f3ff'; c.fillRect(n.x-18, n.y-34, 36, 20);
-    // Number badge
     c.fillStyle='#000'; c.fillRect(n.x-12, n.y-60, 24, 16);
     c.fillStyle='#fff'; c.font='bold 12px sans-serif'; c.textAlign='center'; c.fillText(n.id, n.x, n.y-48);
   }
-  
-  // Player
   drawChar(c, rpgPlayer.x, rpgPlayer.y, rpgPlayer.radius, rpgPlayer.skinColor, rpgPlayer.shirtColor);
-  
-  // E Prompt Popup
   if (rpgCurrentNPC) {
     c.fillStyle='rgba(15,23,42,0.9)'; c.beginPath(); c.roundRect(w/2 - 180, h - 70, 360, 46, 8); c.fill();
     c.strokeStyle='#00f3ff'; c.lineWidth=2; c.stroke();
@@ -558,7 +535,6 @@ function rpgDraw(){
     c.fillText('[ กด E ] ' + rpgCurrentNPC.name + ' - ' + rpgCurrentNPC.title, w/2, h - 42);
   }
 }
-
 function startRpgDlg(npc){rpgState='dialogue';const db=document.getElementById('rpgDialogue');db.style.display='block';document.getElementById('rpgNpcName').textContent=npc.name;if(npc.completed){document.getElementById('rpgNpcText').textContent='[ SYSTEM LOG: Protocol completed. No further action required. ]';document.getElementById('rpgChoices').innerHTML='<button class="rpg-choice" onclick="endRpgDlg()">[ ปิด ]</button>';return;}document.getElementById('rpgNpcText').textContent=npc.text;let ch='';npc.choices.forEach((c,i)=>{ch+=`<button class="rpg-choice" onclick="rpgAns('${npc.name.replace(/'/g,"\\'")}',${i})">${c.text}</button>`;});document.getElementById('rpgChoices').innerHTML=ch;}
 function rpgAns(name,ci){const npc=rpgNPCs.find(n=>n.name===name),ch=npc.choices[ci];document.getElementById('rpgNpcText').textContent=ch.reply;document.getElementById('rpgChoices').innerHTML='<button class="rpg-choice" onclick="endRpgDlg()">[ ยืนยัน ]</button>';if(ch.correct){npc.completed=true;window.Utils.showToast('✅ ACCESS GRANTED!','success');if(rpgNPCs.every(n=>n.completed))setTimeout(()=>{window.Utils.confetti();window.Utils.showToast('🎉 ระบบออนไลน์สมบูรณ์!','success');saveProgress('rpg');},800);}else window.Utils.showToast('❌ ACCESS DENIED!','error');}
 function endRpgDlg(){document.getElementById('rpgDialogue').style.display='none';setTimeout(()=>{rpgState='playing';},80);}
@@ -573,14 +549,232 @@ function sortRm(s){if(sortSt.checked)return;sortSt.answers.splice(s,1);renderSor
 function checkSort(){sortSt.checked=true;window.Utils.showToast(sortSt.answers.every((v,i)=>v===i)?'✅ SYNCHRONIZED!':'❌ SEQUENCE ERROR!',sortSt.answers.every((v,i)=>v===i)?'success':'error');renderSort();}
 
 // ================================================================
-//  3) MATCH: Neural Network
+//  3) MATCH: 3D Neural Link (THREE.JS)
 // ================================================================
-function initMatch(){const d=MATCH_DATA[matchSt.round];matchSt.selL=null;matchSt.pairs={};matchSt.checked=false;matchSt.shR=[...Array(d.pairs.length).keys()];for(let i=matchSt.shR.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[matchSt.shR[i],matchSt.shR[j]]=[matchSt.shR[j],matchSt.shR[i]];}document.getElementById('matchLbl').textContent=`🎯 เครือข่ายที่ ${matchSt.round+1}/${MATCH_DATA.length}`;document.getElementById('matchSub').textContent=d.title;document.getElementById('matchProg').style.width=(matchSt.round/MATCH_DATA.length*100)+'%';renderMatch();}
-function renderMatch(){const d=MATCH_DATA[matchSt.round],n=d.pairs.length;let h=`<div class="game-inst">📌 ${d.desc}</div><div class="match-container"><svg id="svgLines"></svg><div class="match-area"><div class="match-col"><div class="match-col-title">User Input</div>`;for(let i=0;i<n;i++){let cls='';const pt=matchSt.pairs[i];let st='';if(pt!==undefined){const ci=Object.keys(matchSt.pairs).sort().indexOf(String(i));st=`--clr:${PAIR_COLORS[ci%PAIR_COLORS.length]}`;cls=' paired';if(matchSt.checked)cls+=pt===i?' correct':' wrong';}if(matchSt.selL===i)cls+=' selected';h+=`<div class="match-card${cls}" style="${st}" onclick="mClickL(${i})" id="mL${i}"><span>${d.pairs[i].sentence}</span><div class="node-point"></div></div>`;}h+='</div><div class="match-col"><div class="match-col-title">Intent Core</div>';for(const ri of matchSt.shR){let cls='';const pl=Object.entries(matchSt.pairs).find(([l,r])=>r===ri);let st='';if(pl){const ci=Object.keys(matchSt.pairs).sort().indexOf(pl[0]);st=`--clr:${PAIR_COLORS[ci%PAIR_COLORS.length]}`;cls=' paired';if(matchSt.checked)cls+=parseInt(pl[0])===ri?' correct':' wrong';}h+=`<div class="match-card${cls}" style="${st}" onclick="mClickR(${ri})" id="mR${ri}"><div class="node-point"></div><span>${d.pairs[ri].intent}</span></div>`;}h+='</div></div></div>';if(!matchSt.checked)h+=`<button class="check-btn" ${Object.keys(matchSt.pairs).length===n?'':'disabled'} onclick="checkMatch()">เชื่อมต่อวงจร</button>`;else{const ok=Object.entries(matchSt.pairs).every(([l,r])=>parseInt(l)===r);if(ok){const last=matchSt.round>=MATCH_DATA.length-1;h+=last?mkResult('⚡','CONNECTION STABLE!','เชื่อมวงจรสำเร็จทุกด่าน','match'):`<button class="check-btn" onclick="matchSt.round++;initMatch()">วงจรต่อไป →</button>`;}else h+=`<button class="check-btn" onclick="matchSt.pairs={};matchSt.selL=null;matchSt.checked=false;initMatch()">รีเซ็ตวงจร</button>`;}document.getElementById('matchBody').innerHTML=h;setTimeout(drawWires,50);}
-function drawWires(){const svg=document.getElementById('svgLines');if(!svg)return;let html='';const cont=svg.getBoundingClientRect();Object.entries(matchSt.pairs).forEach(([l,r])=>{const nL=document.getElementById('mL'+l)?.querySelector('.node-point');const nR=document.getElementById('mR'+r)?.querySelector('.node-point');if(nL&&nR){const rL=nL.getBoundingClientRect(),rR=nR.getBoundingClientRect();const x1=rL.left-cont.left+8,y1=rL.top-cont.top+8,x2=rR.left-cont.left+8,y2=rR.top-cont.top+8;const ci=Object.keys(matchSt.pairs).sort().indexOf(String(l));const clr=PAIR_COLORS[ci%PAIR_COLORS.length];html+=`<path class="wire-line" d="M ${x1} ${y1} C ${x1+100} ${y1}, ${x2-100} ${y2}, ${x2} ${y2}" style="stroke:${clr};--clr:${clr}" />`;}});svg.innerHTML=html;}
-function mClickL(i){if(matchSt.checked)return;if(matchSt.pairs[i]!==undefined){delete matchSt.pairs[i];matchSt.selL=null;renderMatch();return;}matchSt.selL=i;renderMatch();}
-function mClickR(ri){if(matchSt.checked||matchSt.selL===null)return;const ol=Object.entries(matchSt.pairs).find(([l,r])=>r===ri);if(ol)delete matchSt.pairs[ol[0]];matchSt.pairs[matchSt.selL]=ri;matchSt.selL=null;renderMatch();}
-function checkMatch(){matchSt.checked=true;const ok=Object.entries(matchSt.pairs).every(([l,r])=>parseInt(l)===r);window.Utils.showToast(ok?'✅ วงจรสมบูรณ์!':'❌ เกิดข้อผิดพลาดในวงจร',ok?'success':'error');renderMatch();}
+let matchScene, matchCamera, matchRenderer, matchRaycaster, matchMouse;
+let matchSpheres = [];
+let matchSentenceIdx = 0;
+let matchAnimId = null;
+
+function initMatch(){
+  const d=MATCH_DATA[matchSt.round];
+  matchSt.checked=false;
+  document.getElementById('matchLbl').textContent=`🎯 เครือข่ายที่ ${matchSt.round+1}/${MATCH_DATA.length}`;
+  document.getElementById('matchProg').style.width=(matchSt.round/MATCH_DATA.length*100)+'%';
+  
+  document.getElementById('matchStartBody').style.display = 'block';
+  document.getElementById('matchBody').style.display = 'none';
+  
+  document.getElementById('matchStartBody').innerHTML = `
+    <div class="game-inst" style="text-align:center; padding:40px 20px;">
+      <h2 style="color:var(--neon-blue); margin-bottom:15px; font-size:2rem; text-shadow:0 0 10px var(--neon-blue);">3D NEURAL LINK</h2>
+      <p style="font-size:1.1rem; line-height:1.6; color:#cbd5e1; margin-bottom:30px;">คุณกำลังเข้าสู่ระบบเครือข่าย AI ในรูปแบบ 3 มิติ<br><b>วิธีเล่น:</b> ลากเมาส์ (หรือปัดหน้าจอ) เพื่อหมุนมุมกล้อง<br>แล้ว "คลิกที่ดวงดาว (Intent)" ที่ตรงกับประโยคบนจอ!</p>
+      <button class="check-btn" onclick="startMatch3D()">เชื่อมต่อจิต 🚀</button>
+    </div>
+  `;
+}
+
+function startMatch3D() {
+  document.getElementById('matchStartBody').style.display = 'none';
+  document.getElementById('matchBody').style.display = 'block';
+  matchSentenceIdx = 0;
+  
+  if(!matchScene) {
+    const cont = document.getElementById('match3DContainer');
+    matchScene = new THREE.Scene();
+    matchScene.fog = new THREE.FogExp2(0x050a14, 0.03);
+    
+    matchCamera = new THREE.PerspectiveCamera(60, cont.clientWidth/cont.clientHeight, 0.1, 1000);
+    matchCamera.position.z = 18;
+    matchCamera.position.y = 4;
+    matchCamera.lookAt(0,0,0);
+    
+    matchRenderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+    matchRenderer.setSize(cont.clientWidth, cont.clientHeight);
+    cont.appendChild(matchRenderer.domElement);
+    
+    const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+    matchScene.add(ambient);
+    const point = new THREE.PointLight(0x00f3ff, 2, 50);
+    point.position.set(0, 10, 0);
+    matchScene.add(point);
+    
+    const geo = new THREE.BufferGeometry();
+    const verts = [];
+    for(let i=0;i<600;i++) { verts.push((Math.random()-0.5)*60, (Math.random()-0.5)*60, (Math.random()-0.5)*60); }
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+    const mat = new THREE.PointsMaterial({color:0xffdf00, size:0.15});
+    matchScene.add(new THREE.Points(geo, mat));
+    
+    matchRaycaster = new THREE.Raycaster();
+    matchMouse = new THREE.Vector2();
+    
+    let isDragging = false, prevMouse = {x:0, y:0};
+    cont.addEventListener('mousedown', e => { isDragging=true; prevMouse={x:e.clientX, y:e.clientY}; });
+    cont.addEventListener('mousemove', e => {
+      if(isDragging) {
+        matchScene.rotation.y += (e.clientX - prevMouse.x) * 0.01;
+        prevMouse={x:e.clientX, y:e.clientY};
+      }
+    });
+    window.addEventListener('mouseup', () => { isDragging=false; });
+    
+    cont.addEventListener('touchstart', e => { isDragging=true; prevMouse={x:e.touches[0].clientX, y:e.touches[0].clientY}; }, {passive:true});
+    cont.addEventListener('touchmove', e => {
+      if(isDragging) {
+        matchScene.rotation.y += (e.touches[0].clientX - prevMouse.x) * 0.01;
+        prevMouse={x:e.touches[0].clientX, y:e.touches[0].clientY};
+      }
+    }, {passive:true});
+    window.addEventListener('touchend', () => { isDragging=false; });
+
+    cont.addEventListener('click', onMatchClick);
+    
+    // Resize handler
+    window.addEventListener('resize', () => {
+      if(document.getElementById('matchView').classList.contains('active') && matchCamera && matchRenderer) {
+        matchCamera.aspect = cont.clientWidth/cont.clientHeight;
+        matchCamera.updateProjectionMatrix();
+        matchRenderer.setSize(cont.clientWidth, cont.clientHeight);
+      }
+    });
+
+    matchAnimate();
+  }
+  
+  matchSpheres.forEach(s => matchScene.remove(s.mesh));
+  matchSpheres = [];
+  
+  const d = MATCH_DATA[matchSt.round];
+  const n = d.pairs.length;
+  const colors = [0xbc13fe, 0x00f3ff, 0xffdf00, 0x00ff66, 0xff003c];
+  
+  for(let i=0; i<n; i++) {
+    const geo = new THREE.SphereGeometry(1.8, 16, 16);
+    const cHex = colors[i%colors.length];
+    const mat = new THREE.MeshStandardMaterial({ color: cHex, wireframe:true, emissive:cHex, emissiveIntensity:0.6 });
+    const mesh = new THREE.Mesh(geo, mat);
+    
+    const angle = (i/n) * Math.PI * 2;
+    const radius = 9;
+    mesh.position.set(Math.cos(angle)*radius, (Math.random()-0.5)*6, Math.sin(angle)*radius);
+    mesh.userData = { id: i, text: d.pairs[i].intent, color: cHex };
+    
+    matchScene.add(mesh);
+    matchSpheres.push({ mesh, angle, radius, speed: (Math.random()*0.005 + 0.005) });
+  }
+  
+  matchSt.shR = [...Array(n).keys()].sort(() => Math.random() - 0.5);
+  updateMatchUI();
+}
+
+function updateMatchUI() {
+  const d = MATCH_DATA[matchSt.round];
+  if(matchSentenceIdx >= d.pairs.length) {
+    document.getElementById('matchCurrentSentence').style.display = 'none';
+    matchSpheres.forEach(s => matchScene.remove(s.mesh));
+    setTimeout(() => {
+      document.getElementById('matchBody').style.display = 'none';
+      document.getElementById('matchStartBody').style.display = 'block';
+      const last = matchSt.round >= MATCH_DATA.length - 1;
+      let h = last ? mkResult('🌌','LINK ESTABLISHED!','เชื่อมต่อเครือข่าย 3 มิติสำเร็จครบทุกด่าน','match') 
+                   : `<div class="result-card"><div class="result-icon">⚡</div><div class="result-title">NEURAL LINK STABLE</div><div class="result-actions"><button class="check-btn" onclick="matchSt.round++;initMatch()">เชื่อมต่อเครือข่ายด่านต่อไป →</button></div></div>`;
+      document.getElementById('matchStartBody').innerHTML = h;
+    }, 1000);
+    return;
+  }
+  document.getElementById('matchCurrentSentence').style.display = 'block';
+  const targetId = matchSt.shR[matchSentenceIdx];
+  document.getElementById('matchCurrentSentence').innerHTML = `
+    <div style="font-size:0.8rem;color:var(--neon-blue);letter-spacing:2px;margin-bottom:8px;">INCOMING SIGNAL</div>
+    <div style="font-size:1.5rem;font-weight:bold;">💬 "${d.pairs[targetId].sentence}"</div>
+  `;
+}
+
+function onMatchClick(e) {
+  const cont = document.getElementById('match3DContainer');
+  const rect = cont.getBoundingClientRect();
+  matchMouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+  matchMouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+  
+  matchRaycaster.setFromCamera(matchMouse, matchCamera);
+  const intersects = matchRaycaster.intersectObjects(matchSpheres.map(s => s.mesh).filter(m => m.visible));
+  
+  if(intersects.length > 0) {
+    const mesh = intersects[0].object;
+    const targetId = matchSt.shR[matchSentenceIdx];
+    
+    if(mesh.userData.id === targetId) {
+      window.Utils.showToast('✅ LINK SUCCESS!', 'success');
+      mesh.material.wireframe = false;
+      mesh.material.emissiveIntensity = 1;
+      mesh.scale.set(1.5, 1.5, 1.5);
+      setTimeout(() => { mesh.visible = false; }, 300);
+      matchSentenceIdx++;
+      updateMatchUI();
+    } else {
+      window.Utils.showToast('❌ WRONG INTENT!', 'error');
+      const oldC = mesh.material.emissive.getHex();
+      mesh.material.emissive.setHex(0xff0000);
+      setTimeout(() => { mesh.material.emissive.setHex(oldC); }, 400);
+    }
+  }
+}
+
+function matchAnimate() {
+  if(!matchScene) return;
+  matchAnimId = requestAnimationFrame(matchAnimate);
+  const time = Date.now() * 0.001;
+  matchSpheres.forEach(s => {
+    s.mesh.position.y += Math.sin(time*2 + s.angle)*0.02;
+    s.mesh.rotation.y += 0.01;
+    s.mesh.rotation.x += 0.005;
+  });
+  updateMatchLabels();
+  matchRenderer.render(matchScene, matchCamera);
+}
+
+function updateMatchLabels() {
+  const cont = document.getElementById('match3DContainer');
+  if(!cont) return;
+  let wrap = document.getElementById('matchLabels');
+  if(!wrap) {
+    wrap = document.createElement('div');
+    wrap.id = 'matchLabels';
+    wrap.style.position = 'absolute';
+    wrap.style.inset = '0';
+    wrap.style.pointerEvents = 'none';
+    cont.appendChild(wrap);
+  }
+  wrap.innerHTML = '';
+  matchSpheres.forEach(s => {
+    if(!s.mesh.visible) return;
+    const v = new THREE.Vector3();
+    v.setFromMatrixPosition(s.mesh.matrixWorld);
+    v.project(matchCamera);
+    if(v.z < 1) { 
+      const x = (v.x * 0.5 + 0.5) * cont.clientWidth;
+      const y = (v.y * -0.5 + 0.5) * cont.clientHeight;
+      const lbl = document.createElement('div');
+      lbl.textContent = s.mesh.userData.text;
+      lbl.style.position = 'absolute';
+      lbl.style.left = x + 'px';
+      lbl.style.top = (y - 50) + 'px';
+      lbl.style.transform = 'translate(-50%, -50%)';
+      lbl.style.color = '#fff';
+      lbl.style.background = 'rgba(0,0,0,0.8)';
+      lbl.style.padding = '6px 12px';
+      lbl.style.borderRadius = '8px';
+      lbl.style.border = '1px solid #' + s.mesh.userData.color.toString(16).padStart(6, '0');
+      lbl.style.fontFamily = 'Sarabun';
+      lbl.style.fontSize = '0.9rem';
+      lbl.style.fontWeight = 'bold';
+      lbl.style.whiteSpace = 'nowrap';
+      lbl.style.boxShadow = '0 0 15px #' + s.mesh.userData.color.toString(16).padStart(6, '0');
+      wrap.appendChild(lbl);
+    }
+  });
+}
 
 // ================================================================
 //  4) ERROR: Debug Terminal
