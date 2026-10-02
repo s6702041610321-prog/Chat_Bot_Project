@@ -444,6 +444,8 @@ document.addEventListener('DOMContentLoaded',()=>{window.Nav.renderTopNav('game'
 function getProgress(){return window.Utils.Storage.get('cb_progress')||{};}
 function saveProgress(key){
   let p=getProgress();if(!p.games)p.games={};p.games[key]=true;window.Utils.Storage.set('cb_progress',p);updateHub();
+  const gameNames = {rpg:'ศูนย์ฝึก AI', sort:'ประกอบร่างบอท', match:'เชื่อมวงจร Intent', error:'ตรวจสอบบั๊ก', bot:'จำลองสถานการณ์', speed:'ทดสอบแกนพลังงาน'};
+  if(window.Utils.syncToGoogleSheet) window.Utils.syncToGoogleSheet('ผ่านมินิเกม: ' + (gameNames[key]||key));
   const g=p.games;if(g.rpg&&g.sort&&g.match&&g.error&&g.bot&&g.speed){setTimeout(()=>{window.Utils.confetti();window.Utils.showToast('🏆 ยินดีด้วย! คุณคือ Chatbot Master เคลียร์ครบ 6 ด่าน!','success');if(window.Utils.syncToGoogleSheet)window.Utils.syncToGoogleSheet('มินิเกม (เคลียร์ครบ 6 ด่าน)');},600);}
 }
 function updateHub(){

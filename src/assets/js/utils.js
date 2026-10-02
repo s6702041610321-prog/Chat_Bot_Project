@@ -109,7 +109,7 @@ window.Utils = (function(){
       preTest: prog.preTest ? prog.preTest.score : '-',
       postTest: prog.postTest ? prog.postTest.score : '-',
       lessons: prog.lessons && Object.keys(prog.lessons).length >= 6 ? 'ครบ' : 'กำลังเรียน',
-      games: prog.games && Object.keys(prog.games).length >= 3 ? 'ครบ' : 'กำลังเล่น',
+      games: prog.games && Object.keys(prog.games).length >= 6 ? 'ครบ' : 'กำลังเล่น',
       worksheets: prog.worksheets && Object.keys(prog.worksheets).length >= 3 ? 'ครบ' : 'กำลังทำ',
       certId: user.certId || '-',
       activity: activityName
@@ -134,5 +134,6 @@ window.Utils = (function(){
 
   return { showToast, syncToGoogleSheet, Storage, calcScore, formatTime, formatDate, generateCertID, initTheme, toggleTheme, confetti, downloadCSV };
 })();
+
 
 
