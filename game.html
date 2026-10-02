@@ -25,7 +25,7 @@
     /* ===================== PARTICLE BG ===================== */
     #bgCanvas { position:fixed; inset:0; z-index:0; pointer-events:none; }
 
-    /* ===================== HUB MAP (Already Grand) ===================== */
+    /* ===================== HUB MAP ===================== */
     .hub-header {
       position:relative; z-index:2; display:flex; align-items:center; justify-content:space-between;
       flex-wrap:wrap; gap:14px; padding:16px 22px; margin-bottom:16px;
@@ -167,24 +167,6 @@
     .bot-opt.correct { border-color:var(--neon-green)!important; background:#dcfce7!important; color:#166534; }
     .bot-opt.wrong { border-color:var(--neon-red)!important; background:#fee2e2!important; color:#991b1b; }
 
-    /* ===================== 5. SPEED: Reactor Core ===================== */
-    .reactor-container { display:flex; flex-direction:column; align-items:center; padding:20px 0; }
-    .reactor-timer { width:160px; height:160px; position:relative; display:grid; place-items:center; margin-bottom:30px; }
-    .reactor-svg { position:absolute; inset:0; transform:rotate(-90deg); width:100%; height:100%; filter:drop-shadow(0 0 10px var(--neon-blue)); }
-    .reactor-bg { fill:none; stroke:rgba(255,255,255,0.1); stroke-width:8; }
-    .reactor-prog { fill:none; stroke:var(--neon-blue); stroke-width:8; stroke-linecap:round; transition:stroke-dashoffset 0.1s linear, stroke 0.3s; stroke-dasharray:440; stroke-dashoffset:0; }
-    .reactor-text { font-size:3rem; font-weight:900; font-family:'Inter',sans-serif; color:#fff; text-shadow:0 0 15px rgba(255,255,255,0.5); }
-    
-    .speed-score-badge { background:rgba(0,0,0,0.5); padding:8px 20px; border-radius:99px; border:1px solid rgba(255,255,255,0.2); font-weight:800; font-size:1.1rem; color:var(--neon-yellow); margin-bottom:20px; }
-    .speed-q { font-size:1.6rem; font-weight:800; margin-bottom:30px; text-align:center; line-height:1.4; text-shadow:0 2px 10px rgba(0,0,0,0.8); max-width:700px; }
-    
-    .speed-opts { display:grid; grid-template-columns:1fr 1fr; gap:16px; width:100%; max-width:700px; }
-    @media(max-width:600px){.speed-opts{grid-template-columns:1fr;}}
-    .speed-opt { padding:20px; border:2px solid rgba(255,255,255,0.1); border-radius:16px; background:linear-gradient(145deg, rgba(30,41,59,0.9), rgba(15,23,42,0.9)); cursor:pointer; font-family:inherit; font-size:1.05rem; font-weight:600; color:#fff; transition:0.2s; text-align:center; box-shadow:0 4px 15px rgba(0,0,0,0.3); }
-    .speed-opt:hover { border-color:var(--neon-blue); transform:scale(1.03); box-shadow:0 0 20px rgba(0,243,255,0.3); }
-    .speed-opt.correct { border-color:var(--neon-green)!important; background:rgba(0,255,102,0.2)!important; box-shadow:0 0 25px rgba(0,255,102,0.5)!important; }
-    .speed-opt.wrong { border-color:var(--neon-red)!important; background:rgba(255,0,60,0.2)!important; box-shadow:0 0 25px rgba(255,0,60,0.5)!important; animation:shake .4s; }
-
     /* ===================== 6. RPG: Pixel Canvas ===================== */
     #rpgWrap { position:relative; width:100%; max-width:800px; height:480px; margin:0 auto; background:#000; border-radius:16px; overflow:hidden; border:2px solid var(--neon-blue); box-shadow:0 10px 50px rgba(0,243,255,0.2); }
     #rpgCanvas { display:block; width:100%; height:100%; image-rendering: pixelated; }
@@ -272,7 +254,7 @@
               <div class="stage-stars" id="starsBot">☆☆☆</div>
             </div>
             <div class="stage-node sg-orange" style="left:18%;top:70%" onclick="openGame('speed')" id="stageSpeed">
-              <div class="stage-circle"><span class="stage-num">6</span>⏱️</div>
+              <div class="stage-circle"><span class="stage-num">6</span>🚀</div>
               <div class="stage-label">ทดสอบแกนพลังงาน</div>
               <div class="stage-stars" id="starsSpeed">☆☆☆</div>
             </div>
@@ -311,16 +293,10 @@
     <!-- ================ 3) MATCH 3D ================ -->
     <section id="matchView" class="game-section">
       <div class="game-top"><div class="game-top-left"><button class="back-btn" onclick="backToHub()">← แผนที่</button><div><div class="round-label" id="matchLbl">🎯 3D Neural Link</div><div class="round-sub" id="matchSub">หมุนมุมกล้องและจับคู่ Intent ในอวกาศ 3 มิติ</div></div></div><div class="pbar-w"><div class="pbar-f" id="matchProg" style="width:0%"></div></div></div>
-      
-      <!-- Container for 3D Game -->
       <div class="game-body" id="matchBody" style="padding:0; overflow:hidden; border-radius:16px; border:2px solid var(--neon-purple); position:relative; min-height:500px; display:none;">
-        <!-- HUD Overlay -->
         <div id="matchCurrentSentence" style="position:absolute; top:20px; left:50%; transform:translateX(-50%); z-index:10; background:rgba(10,15,30,0.8); border:1px solid var(--neon-blue); padding:16px 24px; border-radius:12px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.8); min-width:300px; pointer-events:none;"></div>
-        <!-- 3D Canvas Container -->
         <div id="match3DContainer" style="width:100%; height:500px; position:relative; cursor:crosshair; background:#000;"></div>
       </div>
-      
-      <!-- Start/Result Screen -->
       <div class="game-body" id="matchStartBody"></div>
     </section>
     
@@ -330,8 +306,28 @@
     <!-- ================ 5) BOT ================ -->
     <section id="botView" class="game-section"><div class="game-top"><div class="game-top-left"><button class="back-btn" onclick="backToHub()">← แผนที่</button><div><div class="round-label" id="botLbl">💬 สถานการณ์ 1/5</div><div class="round-sub">สวมบทเป็นแชทบอท ตอบลูกค้าให้ถูกต้อง</div></div></div><div class="pbar-w"><div class="pbar-f" id="botProg" style="width:0%"></div></div></div><div class="game-body" id="botBody"></div></section>
     
-    <!-- ================ 6) SPEED ================ -->
-    <section id="speedView" class="game-section"><div class="game-top"><div class="game-top-left"><button class="back-btn" onclick="backToHub()">← แผนที่</button><div><div class="round-label" id="speedLbl">⏱️ ข้อ 1/10</div><div class="round-sub">ตอบให้ถูกภายในเวลา!</div></div></div><div class="pbar-w"><div class="pbar-f" id="speedProg" style="width:0%"></div></div></div><div class="game-body" id="speedBody"></div></section>
+    <!-- ================ 6) SPEED (ARCADE SHOOTER) ================ -->
+    <section id="speedView" class="game-section">
+      <div class="game-top"><div class="game-top-left"><button class="back-btn" onclick="backToHub()">← แผนที่</button><div><div class="round-label" id="speedLbl">🚀 ARCADE SHOOTER</div><div class="round-sub">ขับยานยิงคำตอบที่ถูกต้องก่อนอุกกาบาตตกถึงพื้น!</div></div></div><div class="pbar-w"><div class="pbar-f" id="speedProg" style="width:0%"></div></div></div>
+      
+      <div class="game-body" id="speedBody" style="padding:0; overflow:hidden; border-radius:16px; border:2px solid var(--neon-purple); position:relative; min-height:500px; display:none;">
+        <!-- HUD -->
+        <div id="speedQWrap" style="position:absolute; top:20px; left:50%; transform:translateX(-50%); width:90%; z-index:10; background:rgba(10,15,30,0.9); border:1px solid var(--neon-blue); padding:16px; border-radius:12px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.8); pointer-events:none;">
+          <div id="speedQ" style="font-size:1.1rem;font-weight:bold;margin-bottom:10px;color:#fff;"></div>
+          <div id="speedOpts" style="display:flex; justify-content:center; gap:8px; flex-wrap:wrap;"></div>
+        </div>
+        <!-- Arcade Canvas -->
+        <canvas id="speedCanvas" style="display:block; width:100%; height:500px; background:#000; cursor:crosshair;"></canvas>
+      </div>
+
+      <div class="game-body" id="speedStartBody">
+        <div class="game-inst" style="text-align:center; padding:40px 20px;">
+          <h2 style="color:var(--neon-blue); margin-bottom:15px; font-size:2rem; text-shadow:0 0 10px var(--neon-blue);">ARCADE SHOOTER</h2>
+          <p style="font-size:1.1rem; line-height:1.6; color:#cbd5e1; margin-bottom:30px;">บังคับยานอวกาศเพื่อยิงทำลายอุกกาบาต <b>(A, B, C, D)</b> ที่ตรงกับคำตอบ!<br><br><b>วิธีเล่น:</b> เลื่อนเมาส์ซ้าย-ขวาเพื่อขยับยาน และ <b>คลิกเพื่อยิงเลเซอร์</b></p>
+          <button class="check-btn" onclick="startSpeedArcade()">ออกยานรบ 🚀</button>
+        </div>
+      </div>
+    </section>
 
   </main>
 
@@ -394,17 +390,17 @@ const BOT_DATA=[
 ];
 const SPEED_DATA=[
   {q:'Intent คืออะไรในบริบทของ Chatbot?',opts:['โปรแกรมแชทบอท','เจตนาหรือสิ่งที่ผู้ใช้ต้องการ','ฐานข้อมูล','ชื่อบอท'],correct:1},
-  {q:'Entity เปรียบเสมือนสิ่งใด?',opts:['คำตอบของบอท','ตัวแปรที่ดึงข้อมูลเฉพาะ (เช่น ชื่อ, เวลา) จากประโยค','หน้าต่างแชท','ปุ่มเมนู'],correct:1},
-  {q:'Training Data (Utterances) มีหน้าที่อะไร?',opts:['ตกแต่งหน้าตาบอท','เป็นประโยคตัวอย่างสอนให้ AI เข้าใจรูปแบบคำถาม','เก็บเงินลูกค้า','สร้างรายงาน'],correct:1},
-  {q:'Fallback Intent จะทำงานเมื่อใด?',opts:['เมื่อลูกค้ากดสั่งซื้อ','เมื่อบอทไม่เข้าใจสิ่งที่ผู้ใช้พิมพ์','เมื่อเริ่มบทสนทนาใหม่','เมื่อบอทปิดตัว'],correct:1},
-  {q:'Human Handoff หมายถึงอะไร?',opts:['การจับมือลูกค้า','การโอนสายจากแชทบอทไปให้พนักงาน (คน) คุยต่อ','การตอบด้วยมือ','ระบบอัตโนมัติ 100%'],correct:1},
-  {q:'ทำไมถึงไม่ควรสร้างบอทที่มีแค่ปุ่มกด (Menu) อย่างเดียว?',opts:['มันสวยเกินไป','ผู้ใช้มักจะอยากพิมพ์ถามคำถามที่เจาะจงมากกว่า','ประหยัดงบ','ผิดกฎหมาย'],correct:1},
-  {q:'Conversation Flow คืออะไร?',opts:['ปริมาณข้อความ','การออกแบบแผนผัง/ลำดับการสนทนาของบอท','ความเร็วในการตอบ','สีสันของช่องแชท'],correct:1},
-  {q:'แชทบอทแบบ Rule-based มีจุดอ่อนคืออะไร?',opts:['ราคาแพงมาก','ถ้าผู้ใช้พิมพ์ผิดคีย์เวิร์ด บอทจะไม่เข้าใจเลย','ตอบช้า','ต้องใช้ AI ระดับสูง'],correct:1},
-  {q:'ข้อใดคือการออกแบบ Response (คำตอบ) ที่ดี?',opts:['ยาวเป็นหน้ากระดาษ','สั้น กระชับ ตรงคำถาม และแนะแนวทางต่อ','กวนประสาทผู้ใช้','ใช้ศัพท์เทคนิคเยอะๆ'],correct:1},
-  {q:'ถ้าต้องการให้บอทรู้ว่าลูกค้าสั่ง "ชาเขียว" ไม่ใช่ "ชานม" ต้องใช้อะไร?',opts:['Intent','Entity (จับค่าประเภทเครื่องดื่ม)','Fallback','Greeting'],correct:1}
+  {q:'Entity เปรียบเสมือนสิ่งใด?',opts:['คำตอบของบอท','ตัวแปรที่ดึงข้อมูลเฉพาะ','หน้าต่างแชท','ปุ่มเมนู'],correct:1},
+  {q:'Training Data มีหน้าที่อะไร?',opts:['ตกแต่งหน้าตาบอท','ประโยคตัวอย่างสอนให้ AI เข้าใจ','เก็บเงินลูกค้า','สร้างรายงาน'],correct:1},
+  {q:'Fallback Intent จะทำงานเมื่อใด?',opts:['เมื่อลูกค้าสั่งซื้อ','เมื่อบอทไม่เข้าใจสิ่งที่ผู้ใช้พิมพ์','เมื่อเริ่มบทสนทนาใหม่','เมื่อบอทปิดตัว'],correct:1},
+  {q:'Human Handoff หมายถึงอะไร?',opts:['การจับมือลูกค้า','การโอนสายให้พนักงาน (คน)','การตอบด้วยมือ','ระบบอัตโนมัติ'],correct:1},
+  {q:'ทำไมไม่ควรสร้างบอทที่มีแค่ปุ่มกด (Menu)?',opts:['มันสวยเกินไป','ผู้ใช้มักจะอยากพิมพ์ถามเจาะจง','ประหยัดงบ','ผิดกฎหมาย'],correct:1},
+  {q:'Conversation Flow คืออะไร?',opts:['ปริมาณข้อความ','การออกแบบแผนผังลำดับการสนทนา','ความเร็วในการตอบ','สีสันของช่องแชท'],correct:1},
+  {q:'แชทบอทแบบ Rule-based มีจุดอ่อนคืออะไร?',opts:['ราคาแพงมาก','พิมพ์ผิดนิดเดียวก็ไม่เข้าใจเลย','ตอบช้า','ต้องใช้ AI ระดับสูง'],correct:1},
+  {q:'ข้อใดคือการออกแบบ Response ที่ดี?',opts:['ยาวเป็นหน้ากระดาษ','สั้น กระชับ ตรงคำถาม','กวนประสาทผู้ใช้','ใช้ศัพท์เทคนิคเยอะๆ'],correct:1},
+  {q:'ลูกค้าสั่ง "ชาเขียว" ไม่ใช่ "ชานม" ต้องใช้อะไรแยก?',opts:['Intent','Entity (จับค่าประเภทเครื่องดื่ม)','Fallback','Greeting'],correct:1}
 ];
-const PAIR_COLORS=['var(--neon-purple)','var(--neon-blue)','var(--neon-yellow)','var(--neon-green)','var(--neon-red)'];
+const PAIR_COLORS=['#bc13fe','#00f3ff','#ffdf00','#00ff66','#ff003c'];
 
 // ================================================================
 //  STATE
@@ -413,7 +409,7 @@ let sortSt={round:0,answers:[],checked:false,_pool:null};
 let matchSt={round:0,shR:[],checked:false};
 let errorSt={idx:0,sel:null,answered:false,score:0};
 let botSt={idx:0,answered:false,score:0};
-let speedSt={idx:0,score:0,answered:false,timer:null,timeLeft:10};
+let speedSt={idx:0,score:0};
 
 // ================================================================
 //  1) RPG - Pixel Art Canvas
@@ -452,14 +448,14 @@ function updateHub(){
   const lv=stars>=18?'MAX':stars>=12?'Lv.4':stars>=6?'Lv.3':stars>=3?'Lv.2':'Lv.1'; document.getElementById('xpLabel').textContent=lv;
 }
 function showView(id){document.querySelectorAll('.game-section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
-function backToHub(){rpgRunning=false;if(speedSt.timer)clearInterval(speedSt.timer);showView('hubView');updateHub();}
+function backToHub(){rpgRunning=false;if(speedAnimId){cancelAnimationFrame(speedAnimId);speedAnimId=null;}showView('hubView');updateHub();}
 function openGame(k){
   if(k==='rpg'){rpgRunning=true;rpgNPCs.forEach(n=>n.completed=false);rpgState='setup';rpgPlayer.x=400;rpgPlayer.y=380;document.getElementById('rpgSetup').style.display='flex';document.getElementById('rpgDialogue').style.display='none';drawPreview();}
   if(k==='sort'){sortSt={round:0,answers:[],checked:false,_pool:null};initSort();}
   if(k==='match'){matchSt={round:0,shR:[],checked:false};initMatch();}
   if(k==='error'){errorSt={idx:0,sel:null,answered:false,score:0};initError();}
   if(k==='bot'){botSt={idx:0,answered:false,score:0};initBot();}
-  if(k==='speed'){speedSt={idx:0,score:0,answered:false,timer:null,timeLeft:10};initSpeed();}
+  if(k==='speed'){initSpeed();}
   showView(GAMES.find(g=>g.key===k).view);
 }
 
@@ -472,13 +468,9 @@ function setShirt(c,el){rpgPlayer.shirtColor=c;document.querySelectorAll('#shirt
 function drawPreview(){const pc=document.getElementById('previewCanvas'),cx=pc.getContext('2d');cx.clearRect(0,0,120,120);drawChar(cx,60,60,22,rpgPlayer.skinColor,rpgPlayer.shirtColor,true);}
 
 function drawChar(cx,x,y,r,skin,shirt,isBig=false){
-  // shadow
   cx.fillStyle='rgba(0,0,0,0.4)'; cx.beginPath(); cx.ellipse(x, y+r*1.4, r*1.2, r*0.3, 0, 0, Math.PI*2); cx.fill();
-  // coat/body
   cx.fillStyle=shirt; cx.beginPath(); cx.arc(x, y+r*0.6, r*1.1, Math.PI, 0); cx.fill(); 
-  // head
   cx.fillStyle=skin; cx.beginPath(); cx.arc(x, y-r*0.5, r*0.9, 0, Math.PI*2); cx.fill();
-  // hair (black)
   cx.fillStyle='#111'; cx.beginPath(); cx.arc(x, y-r*0.75, r*0.95, Math.PI, 0); cx.fill();
   if(isBig){ cx.fillStyle='#000'; cx.beginPath(); cx.arc(x-r*0.3, y-r*0.4, 2, 0, Math.PI*2); cx.fill(); cx.beginPath(); cx.arc(x+r*0.3, y-r*0.4, 2, 0, Math.PI*2); cx.fill(); }
 }
@@ -551,11 +543,6 @@ function checkSort(){sortSt.checked=true;window.Utils.showToast(sortSt.answers.e
 // ================================================================
 //  3) MATCH: 3D Neural Link (THREE.JS)
 // ================================================================
-let matchScene, matchCamera, matchRenderer, matchRaycaster, matchMouse;
-let matchSpheres = [];
-let matchSentenceIdx = 0;
-let matchAnimId = null;
-
 function initMatch(){
   const d=MATCH_DATA[matchSt.round];
   matchSt.checked=false;
@@ -573,7 +560,6 @@ function initMatch(){
     </div>
   `;
 }
-
 function startMatch3D() {
   document.getElementById('matchStartBody').style.display = 'none';
   document.getElementById('matchBody').style.display = 'block';
@@ -583,194 +569,111 @@ function startMatch3D() {
     const cont = document.getElementById('match3DContainer');
     matchScene = new THREE.Scene();
     matchScene.fog = new THREE.FogExp2(0x050a14, 0.03);
-    
     matchCamera = new THREE.PerspectiveCamera(60, cont.clientWidth/cont.clientHeight, 0.1, 1000);
-    matchCamera.position.z = 18;
-    matchCamera.position.y = 4;
-    matchCamera.lookAt(0,0,0);
-    
+    matchCamera.position.z = 18; matchCamera.position.y = 4; matchCamera.lookAt(0,0,0);
     matchRenderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
     matchRenderer.setSize(cont.clientWidth, cont.clientHeight);
     cont.appendChild(matchRenderer.domElement);
     
-    const ambient = new THREE.AmbientLight(0xffffff, 0.6);
-    matchScene.add(ambient);
-    const point = new THREE.PointLight(0x00f3ff, 2, 50);
-    point.position.set(0, 10, 0);
-    matchScene.add(point);
+    matchScene.add(new THREE.AmbientLight(0xffffff, 0.6));
+    const point = new THREE.PointLight(0x00f3ff, 2, 50); point.position.set(0, 10, 0); matchScene.add(point);
     
-    const geo = new THREE.BufferGeometry();
-    const verts = [];
+    const geo = new THREE.BufferGeometry(); const verts = [];
     for(let i=0;i<600;i++) { verts.push((Math.random()-0.5)*60, (Math.random()-0.5)*60, (Math.random()-0.5)*60); }
     geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
-    const mat = new THREE.PointsMaterial({color:0xffdf00, size:0.15});
-    matchScene.add(new THREE.Points(geo, mat));
+    matchScene.add(new THREE.Points(geo, new THREE.PointsMaterial({color:0xffdf00, size:0.15})));
     
-    matchRaycaster = new THREE.Raycaster();
-    matchMouse = new THREE.Vector2();
-    
+    matchRaycaster = new THREE.Raycaster(); matchMouse = new THREE.Vector2();
     let isDragging = false, prevMouse = {x:0, y:0};
     cont.addEventListener('mousedown', e => { isDragging=true; prevMouse={x:e.clientX, y:e.clientY}; });
-    cont.addEventListener('mousemove', e => {
-      if(isDragging) {
-        matchScene.rotation.y += (e.clientX - prevMouse.x) * 0.01;
-        prevMouse={x:e.clientX, y:e.clientY};
-      }
-    });
+    cont.addEventListener('mousemove', e => { if(isDragging) { matchScene.rotation.y += (e.clientX - prevMouse.x) * 0.01; prevMouse={x:e.clientX, y:e.clientY}; }});
     window.addEventListener('mouseup', () => { isDragging=false; });
-    
     cont.addEventListener('touchstart', e => { isDragging=true; prevMouse={x:e.touches[0].clientX, y:e.touches[0].clientY}; }, {passive:true});
-    cont.addEventListener('touchmove', e => {
-      if(isDragging) {
-        matchScene.rotation.y += (e.touches[0].clientX - prevMouse.x) * 0.01;
-        prevMouse={x:e.touches[0].clientX, y:e.touches[0].clientY};
-      }
-    }, {passive:true});
+    cont.addEventListener('touchmove', e => { if(isDragging) { matchScene.rotation.y += (e.touches[0].clientX - prevMouse.x) * 0.01; prevMouse={x:e.touches[0].clientX, y:e.touches[0].clientY}; }}, {passive:true});
     window.addEventListener('touchend', () => { isDragging=false; });
-
     cont.addEventListener('click', onMatchClick);
-    
-    // Resize handler
     window.addEventListener('resize', () => {
       if(document.getElementById('matchView').classList.contains('active') && matchCamera && matchRenderer) {
-        matchCamera.aspect = cont.clientWidth/cont.clientHeight;
-        matchCamera.updateProjectionMatrix();
-        matchRenderer.setSize(cont.clientWidth, cont.clientHeight);
+        matchCamera.aspect = cont.clientWidth/cont.clientHeight; matchCamera.updateProjectionMatrix(); matchRenderer.setSize(cont.clientWidth, cont.clientHeight);
       }
     });
-
     matchAnimate();
   }
   
-  matchSpheres.forEach(s => matchScene.remove(s.mesh));
-  matchSpheres = [];
-  
-  const d = MATCH_DATA[matchSt.round];
-  const n = d.pairs.length;
-  const colors = [0xbc13fe, 0x00f3ff, 0xffdf00, 0x00ff66, 0xff003c];
+  matchSpheres.forEach(s => matchScene.remove(s.mesh)); matchSpheres = [];
+  const d = MATCH_DATA[matchSt.round], n = d.pairs.length;
   
   for(let i=0; i<n; i++) {
-    const geo = new THREE.SphereGeometry(1.8, 16, 16);
-    const cHex = colors[i%colors.length];
+    const geo = new THREE.SphereGeometry(1.8, 16, 16), cHex = PAIR_COLORS[i%PAIR_COLORS.length];
     const mat = new THREE.MeshStandardMaterial({ color: cHex, wireframe:true, emissive:cHex, emissiveIntensity:0.6 });
     const mesh = new THREE.Mesh(geo, mat);
-    
-    const angle = (i/n) * Math.PI * 2;
-    const radius = 9;
+    const angle = (i/n) * Math.PI * 2, radius = 9;
     mesh.position.set(Math.cos(angle)*radius, (Math.random()-0.5)*6, Math.sin(angle)*radius);
     mesh.userData = { id: i, text: d.pairs[i].intent, color: cHex };
-    
-    matchScene.add(mesh);
-    matchSpheres.push({ mesh, angle, radius, speed: (Math.random()*0.005 + 0.005) });
+    matchScene.add(mesh); matchSpheres.push({ mesh, angle, radius, speed: (Math.random()*0.005 + 0.005) });
   }
-  
   matchSt.shR = [...Array(n).keys()].sort(() => Math.random() - 0.5);
   updateMatchUI();
 }
-
 function updateMatchUI() {
   const d = MATCH_DATA[matchSt.round];
   if(matchSentenceIdx >= d.pairs.length) {
     document.getElementById('matchCurrentSentence').style.display = 'none';
     matchSpheres.forEach(s => matchScene.remove(s.mesh));
     setTimeout(() => {
-      document.getElementById('matchBody').style.display = 'none';
-      document.getElementById('matchStartBody').style.display = 'block';
+      document.getElementById('matchBody').style.display = 'none'; document.getElementById('matchStartBody').style.display = 'block';
       const last = matchSt.round >= MATCH_DATA.length - 1;
-      let h = last ? mkResult('🌌','LINK ESTABLISHED!','เชื่อมต่อเครือข่าย 3 มิติสำเร็จครบทุกด่าน','match') 
-                   : `<div class="result-card"><div class="result-icon">⚡</div><div class="result-title">NEURAL LINK STABLE</div><div class="result-actions"><button class="check-btn" onclick="matchSt.round++;initMatch()">เชื่อมต่อเครือข่ายด่านต่อไป →</button></div></div>`;
+      let h = last ? mkResult('🌌','LINK ESTABLISHED!','เชื่อมต่อเครือข่าย 3 มิติสำเร็จครบทุกด่าน','match') : `<div class="result-card"><div class="result-icon">⚡</div><div class="result-title">NEURAL LINK STABLE</div><div class="result-actions"><button class="check-btn" onclick="matchSt.round++;initMatch()">เชื่อมต่อเครือข่ายด่านต่อไป →</button></div></div>`;
       document.getElementById('matchStartBody').innerHTML = h;
     }, 1000);
     return;
   }
   document.getElementById('matchCurrentSentence').style.display = 'block';
   const targetId = matchSt.shR[matchSentenceIdx];
-  document.getElementById('matchCurrentSentence').innerHTML = `
-    <div style="font-size:0.8rem;color:var(--neon-blue);letter-spacing:2px;margin-bottom:8px;">INCOMING SIGNAL</div>
-    <div style="font-size:1.5rem;font-weight:bold;">💬 "${d.pairs[targetId].sentence}"</div>
-  `;
+  document.getElementById('matchCurrentSentence').innerHTML = `<div style="font-size:0.8rem;color:var(--neon-blue);letter-spacing:2px;margin-bottom:8px;">INCOMING SIGNAL</div><div style="font-size:1.5rem;font-weight:bold;">💬 "${d.pairs[targetId].sentence}"</div>`;
 }
-
 function onMatchClick(e) {
-  const cont = document.getElementById('match3DContainer');
-  const rect = cont.getBoundingClientRect();
-  matchMouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-  matchMouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-  
+  const cont = document.getElementById('match3DContainer'), rect = cont.getBoundingClientRect();
+  matchMouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1; matchMouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
   matchRaycaster.setFromCamera(matchMouse, matchCamera);
   const intersects = matchRaycaster.intersectObjects(matchSpheres.map(s => s.mesh).filter(m => m.visible));
-  
   if(intersects.length > 0) {
-    const mesh = intersects[0].object;
-    const targetId = matchSt.shR[matchSentenceIdx];
-    
+    const mesh = intersects[0].object, targetId = matchSt.shR[matchSentenceIdx];
     if(mesh.userData.id === targetId) {
       window.Utils.showToast('✅ LINK SUCCESS!', 'success');
-      mesh.material.wireframe = false;
-      mesh.material.emissiveIntensity = 1;
-      mesh.scale.set(1.5, 1.5, 1.5);
+      mesh.material.wireframe = false; mesh.material.emissiveIntensity = 1; mesh.scale.set(1.5, 1.5, 1.5);
       setTimeout(() => { mesh.visible = false; }, 300);
-      matchSentenceIdx++;
-      updateMatchUI();
+      matchSentenceIdx++; updateMatchUI();
     } else {
       window.Utils.showToast('❌ WRONG INTENT!', 'error');
-      const oldC = mesh.material.emissive.getHex();
-      mesh.material.emissive.setHex(0xff0000);
+      const oldC = mesh.material.emissive.getHex(); mesh.material.emissive.setHex(0xff0000);
       setTimeout(() => { mesh.material.emissive.setHex(oldC); }, 400);
     }
   }
 }
-
 function matchAnimate() {
   if(!matchScene) return;
   matchAnimId = requestAnimationFrame(matchAnimate);
   const time = Date.now() * 0.001;
-  matchSpheres.forEach(s => {
-    s.mesh.position.y += Math.sin(time*2 + s.angle)*0.02;
-    s.mesh.rotation.y += 0.01;
-    s.mesh.rotation.x += 0.005;
-  });
-  updateMatchLabels();
-  matchRenderer.render(matchScene, matchCamera);
+  matchSpheres.forEach(s => { s.mesh.position.y += Math.sin(time*2 + s.angle)*0.02; s.mesh.rotation.y += 0.01; s.mesh.rotation.x += 0.005; });
+  updateMatchLabels(); matchRenderer.render(matchScene, matchCamera);
 }
-
 function updateMatchLabels() {
-  const cont = document.getElementById('match3DContainer');
-  if(!cont) return;
+  const cont = document.getElementById('match3DContainer'); if(!cont) return;
   let wrap = document.getElementById('matchLabels');
-  if(!wrap) {
-    wrap = document.createElement('div');
-    wrap.id = 'matchLabels';
-    wrap.style.position = 'absolute';
-    wrap.style.inset = '0';
-    wrap.style.pointerEvents = 'none';
-    cont.appendChild(wrap);
-  }
+  if(!wrap) { wrap = document.createElement('div'); wrap.id = 'matchLabels'; wrap.style.position = 'absolute'; wrap.style.inset = '0'; wrap.style.pointerEvents = 'none'; cont.appendChild(wrap); }
   wrap.innerHTML = '';
   matchSpheres.forEach(s => {
     if(!s.mesh.visible) return;
-    const v = new THREE.Vector3();
-    v.setFromMatrixPosition(s.mesh.matrixWorld);
-    v.project(matchCamera);
+    const v = new THREE.Vector3(); v.setFromMatrixPosition(s.mesh.matrixWorld); v.project(matchCamera);
     if(v.z < 1) { 
-      const x = (v.x * 0.5 + 0.5) * cont.clientWidth;
-      const y = (v.y * -0.5 + 0.5) * cont.clientHeight;
+      const x = (v.x * 0.5 + 0.5) * cont.clientWidth, y = (v.y * -0.5 + 0.5) * cont.clientHeight;
       const lbl = document.createElement('div');
-      lbl.textContent = s.mesh.userData.text;
-      lbl.style.position = 'absolute';
-      lbl.style.left = x + 'px';
-      lbl.style.top = (y - 50) + 'px';
-      lbl.style.transform = 'translate(-50%, -50%)';
-      lbl.style.color = '#fff';
-      lbl.style.background = 'rgba(0,0,0,0.8)';
-      lbl.style.padding = '6px 12px';
-      lbl.style.borderRadius = '8px';
-      lbl.style.border = '1px solid #' + s.mesh.userData.color.toString(16).padStart(6, '0');
-      lbl.style.fontFamily = 'Sarabun';
-      lbl.style.fontSize = '0.9rem';
-      lbl.style.fontWeight = 'bold';
-      lbl.style.whiteSpace = 'nowrap';
-      lbl.style.boxShadow = '0 0 15px #' + s.mesh.userData.color.toString(16).padStart(6, '0');
+      lbl.textContent = s.mesh.userData.text; lbl.style.position = 'absolute'; lbl.style.left = x + 'px'; lbl.style.top = (y - 50) + 'px';
+      lbl.style.transform = 'translate(-50%, -50%)'; lbl.style.color = '#fff'; lbl.style.background = 'rgba(0,0,0,0.8)';
+      lbl.style.padding = '6px 12px'; lbl.style.borderRadius = '8px'; lbl.style.border = '1px solid ' + s.mesh.userData.color;
+      lbl.style.fontFamily = 'Sarabun'; lbl.style.fontSize = '0.9rem'; lbl.style.fontWeight = 'bold'; lbl.style.whiteSpace = 'nowrap';
+      lbl.style.boxShadow = '0 0 15px ' + s.mesh.userData.color;
       wrap.appendChild(lbl);
     }
   });
@@ -792,16 +695,146 @@ function pickBot(i){botSt.answered=true;botSt._lp=i;const ok=i===BOT_DATA[botSt.
 function mkResultBot(k){const b=document.getElementById('botBody'); if(k) { b.innerHTML='<div class="game-body">'+mkResult('📱','SIMULATION PASSED!',`${botSt.score}/${BOT_DATA.length} คะแนน`,k)+'</div>'; } else { b.innerHTML='<div class="game-body">'+mkResult('📱',`FAILED`, `ได้ ${botSt.score}/${BOT_DATA.length} (ต้อง ≥4)`,null)+'</div>'; }}
 
 // ================================================================
-//  6) SPEED QUIZ: Reactor Core
+//  6) SPEED QUIZ: ARCADE SHOOTER
 // ================================================================
-function initSpeed(){if(speedSt.timer)clearInterval(speedSt.timer);speedSt.timeLeft=10;speedSt.answered=false;document.getElementById('speedLbl').textContent=`⏱️ คำถามที่ ${speedSt.idx+1}/${SPEED_DATA.length}`;document.getElementById('speedProg').style.width=(speedSt.idx/SPEED_DATA.length*100)+'%';renderSpeed();speedSt.timer=setInterval(()=>{speedSt.timeLeft-=0.1;if(speedSt.timeLeft<=0){speedSt.timeLeft=0;clearInterval(speedSt.timer);speedSt.answered=true;window.Utils.showToast('💥 REACTOR OVERLOAD!','error');renderSpeed();setTimeout(()=>{if(speedSt.idx<SPEED_DATA.length-1){speedSt.idx++;initSpeed();}else finishSpeed();},1500);}updateTB();},100);}
-function updateTB(){const pct=(speedSt.timeLeft/10)*100,circ=document.getElementById('reactorCirc');if(circ)circ.style.strokeDashoffset=440-(440*pct/100);const txt=document.getElementById('reactorTxt');if(txt)txt.textContent=Math.ceil(speedSt.timeLeft);if(pct<30){if(circ)circ.style.stroke='var(--neon-red)';}else if(pct<60){if(circ)circ.style.stroke='var(--neon-yellow)';}}
-function renderSpeed(){const d=SPEED_DATA[speedSt.idx];let h=`<div class="reactor-container"><div class="speed-score-badge">POWER LEVEL: ${speedSt.score}/${SPEED_DATA.length}</div><div class="reactor-timer"><svg class="reactor-svg" viewBox="0 0 160 160"><circle class="reactor-bg" cx="80" cy="80" r="70"></circle><circle class="reactor-prog" id="reactorCirc" cx="80" cy="80" r="70"></circle></svg><div class="reactor-text" id="reactorTxt">${Math.ceil(speedSt.timeLeft)}</div></div><div class="speed-q">${d.q}</div><div class="speed-opts">`;d.opts.forEach((o,i)=>{let cls='';if(speedSt.answered){if(i===d.correct)cls=' correct';else if(speedSt._lp===i)cls=' wrong';}h+=`<button class="speed-opt${cls}" ${speedSt.answered?'disabled':''} onclick="pickSpd(${i})">${o}</button>`;});h+='</div></div>';document.getElementById('speedBody').innerHTML=h;updateTB();}
-function pickSpd(i){if(speedSt.answered)return;clearInterval(speedSt.timer);speedSt.answered=true;speedSt._lp=i;const ok=i===SPEED_DATA[speedSt.idx].correct;if(ok)speedSt.score++;window.Utils.showToast(ok?`⚡ พลังงานเสถียร! ทรงตัวที่ ${speedSt.timeLeft.toFixed(1)}s`:'💥 คำตอบผิดพลาด!',ok?'success':'error');renderSpeed();setTimeout(()=>{if(speedSt.idx<SPEED_DATA.length-1){speedSt.idx++;initSpeed();}else finishSpeed();},1200);}
-function finishSpeed(){if(speedSt.timer)clearInterval(speedSt.timer);document.getElementById('speedProg').style.width='100%';document.getElementById('speedBody').innerHTML='<div class="game-body">'+(speedSt.score>=7?mkResult('🔮','CORE STABLE!',`รักษาระดับพลังงานได้ ${speedSt.score}/${SPEED_DATA.length}`,'speed'):mkResult('💥',`CORE MELTDOWN`, `พลังงาน ${speedSt.score}/${SPEED_DATA.length} (ต้องการ ≥7)`,null))+'</div>';}
+let speedCanvas, speedCtx, speedAnimId;
+let spdShip = {x:400, y:450, w:40, h:40};
+let spdLasers = [];
+let spdAsteroids = [];
+let spdParticles = [];
+let spdLastTime = 0;
+let spdMouse = {x:400};
+
+function initSpeed() {
+  document.getElementById('speedLbl').textContent=`🚀 ข้อ ${speedSt.idx+1}/${SPEED_DATA.length}`;
+  document.getElementById('speedProg').style.width=(speedSt.idx/SPEED_DATA.length*100)+'%';
+  document.getElementById('speedStartBody').style.display = 'block';
+  document.getElementById('speedBody').style.display = 'none';
+  speedSt.score = 0; speedSt.idx = 0;
+  if(speedAnimId) { cancelAnimationFrame(speedAnimId); speedAnimId = null; }
+}
+
+function startSpeedArcade() {
+  document.getElementById('speedStartBody').style.display = 'none';
+  document.getElementById('speedBody').style.display = 'block';
+  
+  speedCanvas = document.getElementById('speedCanvas');
+  speedCtx = speedCanvas.getContext('2d');
+  
+  const rect = speedCanvas.getBoundingClientRect();
+  speedCanvas.width = rect.width; speedCanvas.height = rect.height;
+  
+  spdShip.y = speedCanvas.height - 60; spdShip.x = speedCanvas.width / 2; spdMouse.x = spdShip.x;
+  
+  speedCanvas.onmousemove = e => { const r = speedCanvas.getBoundingClientRect(); spdMouse.x = e.clientX - r.left; };
+  speedCanvas.ontouchmove = e => { const r = speedCanvas.getBoundingClientRect(); spdMouse.x = e.touches[0].clientX - r.left; };
+  speedCanvas.onmousedown = shootLaser;
+  speedCanvas.ontouchstart = shootLaser;
+  
+  loadSpeedRound();
+  if(!speedAnimId) speedArcadeLoop(0);
+}
+
+function loadSpeedRound() {
+  const d = SPEED_DATA[speedSt.idx];
+  document.getElementById('speedLbl').textContent=`🚀 ข้อ ${speedSt.idx+1}/${SPEED_DATA.length}`;
+  document.getElementById('speedProg').style.width=(speedSt.idx/SPEED_DATA.length*100)+'%';
+  document.getElementById('speedQ').textContent = d.q;
+  
+  const labels = ['A','B','C','D']; let optsHTML = '';
+  d.opts.forEach((o, i) => { optsHTML += `<div style="background:rgba(0,0,0,0.5); border:1px solid ${PAIR_COLORS[i]}; padding:6px 10px; border-radius:6px; font-size:0.85rem; flex:1; min-width:140px; box-shadow:0 0 10px ${PAIR_COLORS[i]}40;"><b style="color:${PAIR_COLORS[i]}">[${labels[i]}]</b> ${o}</div>`; });
+  document.getElementById('speedOpts').innerHTML = optsHTML;
+  
+  spdAsteroids = []; spdLasers = [];
+  const cw = speedCanvas.width, spacing = cw / 4;
+  for(let i=0; i<4; i++) {
+    spdAsteroids.push({ id: i, label: labels[i], color: PAIR_COLORS[i], x: spacing * i + spacing/2, y: -50 - Math.random()*80, r: 35, speed: 1.0 + Math.random()*0.5 });
+  }
+}
+
+function shootLaser() {
+  spdLasers.push({ x: spdShip.x, y: spdShip.y - 20, speed: 12 });
+}
+
+function speedArcadeLoop(time) {
+  if(!document.getElementById('speedView').classList.contains('active')) return;
+  speedAnimId = requestAnimationFrame(speedArcadeLoop);
+  const dt = time - spdLastTime; spdLastTime = time;
+  
+  const c = speedCtx, cw = speedCanvas.width, ch = speedCanvas.height;
+  c.fillStyle = 'rgba(5, 10, 20, 0.3)'; c.fillRect(0,0,cw,ch);
+  
+  // Ship
+  spdShip.x += (spdMouse.x - spdShip.x) * 0.15;
+  if(spdShip.x < 20) spdShip.x = 20; if(spdShip.x > cw - 20) spdShip.x = cw - 20;
+  
+  c.fillStyle = '#00f3ff'; c.beginPath(); c.moveTo(spdShip.x, spdShip.y - 20); c.lineTo(spdShip.x + 20, spdShip.y + 20); c.lineTo(spdShip.x - 20, spdShip.y + 20); c.fill();
+  c.fillStyle = '#ffdf00'; c.beginPath(); c.moveTo(spdShip.x - 10, spdShip.y + 20); c.lineTo(spdShip.x + 10, spdShip.y + 20); c.lineTo(spdShip.x, spdShip.y + 35 + Math.random()*15); c.fill();
+  
+  // Lasers
+  for(let i = spdLasers.length-1; i>=0; i--) {
+    let l = spdLasers[i]; l.y -= l.speed;
+    c.fillStyle = '#bc13fe'; c.shadowBlur = 10; c.shadowColor = '#bc13fe';
+    c.fillRect(l.x - 2, l.y, 4, 20); c.shadowBlur = 0;
+    if(l.y < 0) { spdLasers.splice(i, 1); continue; }
+    
+    for(let j = spdAsteroids.length-1; j>=0; j--) {
+      let a = spdAsteroids[j];
+      if(Math.hypot(l.x - a.x, l.y - a.y) < a.r + 10) {
+        handleAsteroidHit(a); spdLasers.splice(i, 1); break;
+      }
+    }
+  }
+  
+  // Asteroids
+  for(let i = spdAsteroids.length-1; i>=0; i--) {
+    let a = spdAsteroids[i]; a.y += a.speed;
+    c.fillStyle = 'rgba(15, 23, 42, 0.9)'; c.strokeStyle = a.color; c.lineWidth = 3; c.shadowBlur = 15; c.shadowColor = a.color;
+    c.beginPath(); c.arc(a.x, a.y, a.r, 0, Math.PI*2); c.fill(); c.stroke(); c.shadowBlur = 0;
+    c.fillStyle = '#fff'; c.font = 'bold 28px Inter'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(a.label, a.x, a.y);
+    if(a.y > ch + a.r) a.y = -50 - Math.random()*50;
+  }
+  
+  // Particles
+  for(let i = spdParticles.length-1; i>=0; i--) {
+    let p = spdParticles[i]; p.x += p.vx; p.y += p.vy; p.life--;
+    c.fillStyle = p.color; c.globalAlpha = p.life / p.maxLife;
+    c.beginPath(); c.arc(p.x, p.y, p.r, 0, Math.PI*2); c.fill(); c.globalAlpha = 1;
+    if(p.life <= 0) spdParticles.splice(i, 1);
+  }
+}
+
+function handleAsteroidHit(a) {
+  const d = SPEED_DATA[speedSt.idx], isCorrect = a.id === d.correct;
+  
+  for(let i=0; i<40; i++) {
+    spdParticles.push({
+      x: a.x, y: a.y, vx: (Math.random()-0.5)*12, vy: (Math.random()-0.5)*12, r: Math.random()*5 + 1,
+      life: 30 + Math.random()*20, maxLife: 50, color: isCorrect ? '#00ff66' : '#ff003c'
+    });
+  }
+  spdAsteroids = []; // pause falling
+  
+  if(isCorrect) { speedSt.score++; window.Utils.showToast('✅ TARGET DESTROYED!', 'success'); } 
+  else { window.Utils.showToast('❌ WRONG TARGET!', 'error'); }
+  
+  setTimeout(() => {
+    speedSt.idx++;
+    if(speedSt.idx >= SPEED_DATA.length) finishSpeedArcade();
+    else loadSpeedRound();
+  }, 1000);
+}
+
+function finishSpeedArcade() {
+  if(speedAnimId) cancelAnimationFrame(speedAnimId); speedAnimId = null;
+  document.getElementById('speedBody').style.display = 'none'; document.getElementById('speedStartBody').style.display = 'block';
+  const b = document.getElementById('speedStartBody');
+  if(speedSt.score >= 7) b.innerHTML = mkResult('🚀','MISSION ACCOMPLISHED!',`ทำลายเป้าหมายสำเร็จ ${speedSt.score}/${SPEED_DATA.length}`,'speed');
+  else b.innerHTML = mkResult('💥',`MISSION FAILED`, `คะแนน ${speedSt.score}/${SPEED_DATA.length} (ต้องการ ≥7)`,null);
+}
 
 function mkResult(icon,title,sub,saveKey){let h='<div class="result-card pop-in">';h+=`<div class="result-icon">${icon}</div><div class="result-title">${title}</div><div class="result-sub">${sub}</div><div class="result-actions">`;if(saveKey){saveProgress(saveKey);h+=`<button class="check-btn" style="margin:0" onclick="backToHub()">กลับฐานบัญชาการ</button>`;}else{h+=`<button class="check-btn" style="margin:0" onclick="retryG()">รีสตาร์ท</button><button class="back-btn" style="margin:0;padding:11px 20px" onclick="backToHub()">กลับ</button>`;}h+='</div></div>';return h;}
-function retryG(){if(document.getElementById('errorView').classList.contains('active')){errorSt={idx:0,sel:null,answered:false,score:0};initError();}else if(document.getElementById('botView').classList.contains('active')){botSt={idx:0,answered:false,score:0};initBot();}else if(document.getElementById('speedView').classList.contains('active')){speedSt={idx:0,score:0,answered:false,timer:null,timeLeft:10};initSpeed();}}
+function retryG(){if(document.getElementById('errorView').classList.contains('active')){errorSt={idx:0,sel:null,answered:false,score:0};initError();}else if(document.getElementById('botView').classList.contains('active')){botSt={idx:0,answered:false,score:0};initBot();}else if(document.getElementById('speedView').classList.contains('active')){initSpeed();}}
   </script>
 </body>
 </html>
